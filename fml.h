@@ -10,12 +10,8 @@ typedef struct {
 } bseq1_t;
 
 typedef struct {
-	int n_threads, q, k;
-
-	int no_qual;
+	int n_threads, q, k, l_pre;
 	float min_frac;
-
-	int l_pre;
 
 	int max_end_ext;
 	int win_multi_ec; // no 2 high-qual corrections or 4 corrections in a window of this size
@@ -36,8 +32,8 @@ struct bfc_ch_s;
 extern "C" {
 #endif
 
+void fml_opt_init(fml_opt_t *opt);
 bseq1_t *bseq_read(const char *fn, int *n_);
-
 struct bfc_ch_s *fml_count(const fml_opt_t *opt, int n, bseq1_t *seq);
 
 #ifdef __cplusplus

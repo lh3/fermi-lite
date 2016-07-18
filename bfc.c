@@ -15,7 +15,7 @@ void bfc_opt_init(bfc_opt_t *opt)
 	opt->n_threads = 1;
 	opt->q = 20;
 	opt->k = 33;
-	opt->l_pre = 20;
+	opt->l_pre = 16;
 
 	opt->min_frac = .9;
 
@@ -107,8 +107,10 @@ struct bfc_ch_s *fml_count(const fml_opt_t *opt, int n, bseq1_t *seq)
 	cs.buf = calloc(cs.opt->n_threads, sizeof(void*));
 	for (i = 0; i < cs.opt->n_threads; ++i)
 		cs.buf[i] = malloc(CNT_BUF_SIZE * sizeof(insbuf_t));
-	if (cs.opt->n_threads == 1) worker_count(&cs, cs.n_seqs, 0);
-	else kt_for(cs.opt->n_threads, worker_count, &cs, cs.n_seqs);
+	if (cs.opt->n_threads == 1) {
+		for (i = 0; i < cs.n_seqs; ++i)
+			worker_count(&cs, i, 0);
+	} else kt_for(cs.opt->n_threads, worker_count, &cs, cs.n_seqs);
 	for (i = 0; i < cs.opt->n_threads; ++i) free(cs.buf[i]);
 	free(cs.buf); free(cs.n_buf);
 	return cs.ch;

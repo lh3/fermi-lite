@@ -2,7 +2,7 @@ CC=			gcc
 CFLAGS=		-g -Wall -O2 -Wno-unused-function #-fno-inline-functions -fno-inline-functions-called-once
 CPPFLAGS=
 INCLUDES=	
-OBJS=		kthread.o bseq.o \
+OBJS=		kthread.o misc.o \
 			bseq.o htab.o bfc.o
 PROG=		fml-test
 LIBS=		-lm -lz -lpthread
