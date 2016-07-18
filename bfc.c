@@ -17,10 +17,8 @@ void bfc_opt_init(bfc_opt_t *opt)
 	memset(opt, 0, sizeof(bfc_opt_t));
 	opt->n_threads = 1;
 	opt->q = 20;
-	opt->k = 33;
+	opt->k = 23;
 	opt->l_pre = 16;
-
-	opt->min_frac = .9;
 
 	opt->min_cov = 3;
 	opt->win_multi_ec = 10;

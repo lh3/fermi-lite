@@ -10,11 +10,10 @@ typedef struct {
 
 typedef struct {
 	int n_threads, q, k, l_pre;
-	float min_frac;
+	int min_cov; // a k-mer is considered solid if the count is no less than this
 
 	int max_end_ext;
-	int win_multi_ec; // no 2 high-qual corrections or 4 corrections in a window of this size
-	int min_cov; // a k-mer is considered solid if the count is no less than this
+	int win_multi_ec;
 
 	// these ec options cannot be changed on the command line
 	int w_ec, w_ec_high, w_absent, w_absent_high;

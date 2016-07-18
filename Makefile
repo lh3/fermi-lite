@@ -25,7 +25,7 @@ depend:
 
 # DO NOT DELETE
 
-bfc.o: htab.h kmer.h internal.h fml.h
+bfc.o: htab.h kmer.h internal.h fml.h kvec.h ksort.h
 bseq.o: fml.h kseq.h
 htab.o: htab.h kmer.h khash.h
 misc.o: internal.h fml.h
