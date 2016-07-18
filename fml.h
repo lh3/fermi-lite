@@ -24,6 +24,8 @@ typedef struct {
 	bfc_opt_t bfc_opt;
 } fml_opt_t;
 
+struct rld_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,6 +33,7 @@ extern "C" {
 void fml_opt_init(fml_opt_t *opt);
 bseq1_t *bseq_read(const char *fn, int *n_);
 void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq);
+struct rld_t *fml_gen_fmi(int n, bseq1_t *seq, int is_mt);
 
 #ifdef __cplusplus
 }

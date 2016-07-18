@@ -3,7 +3,8 @@ CFLAGS=		-g -Wall -O2 -Wno-unused-function #-fno-inline-functions -fno-inline-fu
 CPPFLAGS=
 INCLUDES=	
 OBJS=		kthread.o misc.o \
-			bseq.o htab.o bfc.o
+			bseq.o htab.o bfc.o \
+			rle.o rope.o mrope.o rld0.o
 PROG=		fml-test
 LIBS=		-lm -lz -lpthread
 
@@ -28,5 +29,9 @@ depend:
 bfc.o: htab.h kmer.h internal.h fml.h kvec.h ksort.h
 bseq.o: fml.h kseq.h
 htab.o: htab.h kmer.h khash.h
-misc.o: internal.h fml.h
+misc.o: internal.h fml.h kstring.h rle.h mrope.h rope.h rld0.h
+mrope.o: mrope.h rope.h
+rld0.o: rld0.h
+rle.o: rle.h
+rope.o: rle.h rope.h
 test.o: fml.h htab.h kmer.h
