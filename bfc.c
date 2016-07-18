@@ -20,7 +20,7 @@ void bfc_opt_init(bfc_opt_t *opt)
 	opt->k = 23;
 	opt->l_pre = 16;
 
-	opt->min_cov = 3;
+	opt->min_cov = 4; // in BFC, this defaults to 3 because it has Bloom pre-filter
 	opt->win_multi_ec = 10;
 	opt->max_end_ext = 5;
 
@@ -114,6 +114,7 @@ struct bfc_ch_s *fml_count(const fml_opt_t *opt, int n, bseq1_t *seq)
 	} else kt_for(cs.opt->n_threads, worker_count, &cs, cs.n_seqs);
 	for (i = 0; i < cs.opt->n_threads; ++i) free(cs.buf[i]);
 	free(cs.buf); free(cs.n_buf);
+	bfc_ch_drop_low(cs.ch, 2, 0);
 	return cs.ch;
 }
 
