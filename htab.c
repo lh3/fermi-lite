@@ -138,55 +138,6 @@ int bfc_ch_hist(const bfc_ch_t *ch, uint64_t cnt[256], uint64_t high[64])
 	return max_i;
 }
 
-int bfc_ch_dump(const bfc_ch_t *ch, const char *fn)
-{
-	FILE *fp;
-	uint32_t t[2];
-	int i;
-	if ((fp = strcmp(fn, "-")? fopen(fn, "wb") : stdout) == 0) return -1;
-	t[0] = ch->k, t[1] = ch->l_pre;
-	fwrite(t, 4, 2, fp);
-	for (i = 0; i < 1<<ch->l_pre; ++i) {
-		cnthash_t *h = ch->h[i];
-		khint_t k;
-		t[0] = kh_n_buckets(h), t[1] = kh_size(h);
-		fwrite(t, 4, 2, fp);
-		for (k = 0; k < kh_end(h); ++k)
-			if (kh_exist(h, k))
-				fwrite(&kh_key(h, k), 8, 1, fp);
-	}
-	fprintf(stderr, "[M::%s] dumpped the hash table to file '%s'.\n", __func__, fn);
-	fclose(fp);
-	return 0;
-}
-
-bfc_ch_t *bfc_ch_restore(const char *fn)
-{
-	FILE *fp;
-	uint32_t t[2];
-	int i, j, absent;
-	bfc_ch_t *ch;
-
-	if ((fp = fopen(fn, "rb")) == 0) return 0;
-	fread(t, 4, 2, fp);
-	ch = bfc_ch_init(t[0], t[1]);
-	assert((int)t[1] == ch->l_pre);
-	for (i = 0; i < 1<<ch->l_pre; ++i) {
-		cnthash_t *h = ch->h[i];
-		fread(t, 4, 2, fp);
-		kh_resize(cnt, h, t[0]);
-		for (j = 0; j < t[1]; ++j) {
-			uint64_t key;
-			fread(&key, 8, 1, fp);
-			kh_put(cnt, h, key, &absent);
-			assert(absent);
-		}
-	}
-	fclose(fp);
-	fprintf(stderr, "[M::%s] restored the hash table from file '%s'.\n", __func__, fn);
-	return ch;
-}
-
 int bfc_ch_get_k(const bfc_ch_t *ch)
 {
 	return ch->k;
