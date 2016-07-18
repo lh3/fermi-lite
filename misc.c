@@ -3,6 +3,7 @@
 #include "rle.h"
 #include "mrope.h"
 #include "rld0.h"
+#include "mag.h"
 #include "fml.h"
 
 unsigned char seq_nt6_table[256] = {
@@ -27,6 +28,7 @@ unsigned char seq_nt6_table[256] = {
 void fml_opt_init(fml_opt_t *opt)
 {
 	bfc_opt_init(&opt->bfc_opt);
+	mag_init_opt(&opt->mag_opt);
 }
 
 static inline int is_rev_same(int l, const char *s)
@@ -38,7 +40,7 @@ static inline int is_rev_same(int l, const char *s)
 	return (i == l>>1);
 }
 
-struct rld_t *fml_gen_fmi(int n, bseq1_t *seq, int is_mt)
+struct rld_t *fml_fmi_gen(int n, bseq1_t *seq, int is_mt)
 {
 	mrope_t *mr;
 	kstring_t str = {0,0,0};
@@ -60,12 +62,9 @@ struct rld_t *fml_gen_fmi(int n, bseq1_t *seq, int is_mt)
 		if (is_rev_same(s->l_seq, s->seq))
 			--s->l_seq, s->seq[s->l_seq] = 0;
 		kputsn(s->seq, s->l_seq + 1, &str);
-		for (i = 0; i < s->l_seq>>1; ++i) {
-			int tmp = s->seq[s->l_seq - 1 - i];
-			tmp = 5 - tmp, s->seq[s->l_seq - 1 - i] = 5 - s->seq[i], s->seq[i] = tmp;
-		}
+		seq_revcomp6(s->l_seq, (uint8_t*)s->seq);
 		if (s->l_seq&1) s->seq[i] = 5 - s->seq[i];
-		kputsn(s->seq, s->l_seq>>1, &str);
+		kputsn(s->seq, s->l_seq + 1, &str);
 	}
 	mr_insert_multi(mr, str.l, (uint8_t*)str.s, is_mt);
 	free(str.s);
@@ -86,4 +85,10 @@ struct rld_t *fml_gen_fmi(int n, bseq1_t *seq, int is_mt)
 
 	mr_destroy(mr);
 	return e;
+}
+
+void fml_graph_clean(const fml_opt_t *opt, struct mag_t *g)
+{
+	mag_g_clean(g, &opt->mag_opt);
+	mag_g_trim_open(g, &opt->mag_opt);
 }

@@ -20,11 +20,26 @@ typedef struct {
 	int max_path_diff, max_heap;
 } bfc_opt_t;
 
+#define MAG_F_READ_ORI   0x1
+#define MAG_F_READ_TAG   0x2
+#define MAG_F_CLEAN      0x10
+#define MAG_F_AGGRESSIVE 0x20
+#define MAG_F_NO_AMEND   0x40
+#define MAG_F_NO_SIMPL   0x80
+
+typedef struct {
+	int flag, max_arc, min_ovlp, min_elen, min_ensr, min_insr, max_bdist, max_bvtx, min_merge_len, trim_len, trim_depth;
+	float min_dratio0, min_dratio1;
+	float max_bcov, max_bfrac;
+} magopt_t;
+
 typedef struct {
 	bfc_opt_t bfc_opt;
+	magopt_t mag_opt;
 } fml_opt_t;
 
 struct rld_t;
+struct mag_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,7 +48,9 @@ extern "C" {
 void fml_opt_init(fml_opt_t *opt);
 bseq1_t *bseq_read(const char *fn, int *n_);
 void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq);
-struct rld_t *fml_gen_fmi(int n, bseq1_t *seq, int is_mt);
+struct rld_t *fml_fmi_gen(int n, bseq1_t *seq, int is_mt);
+struct mag_t *fml_assemble(const struct rld_t *e, int min_match, int min_merge_len, int n_threads);
+void fml_graph_clean(const fml_opt_t *opt, struct mag_t *g);
 
 #ifdef __cplusplus
 }

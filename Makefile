@@ -4,7 +4,8 @@ CPPFLAGS=
 INCLUDES=	
 OBJS=		kthread.o misc.o \
 			bseq.o htab.o bfc.o \
-			rle.o rope.o mrope.o rld0.o
+			rle.o rope.o mrope.o rld0.o \
+			unitig.o mag.o bubble.o ksw.o
 PROG=		fml-test
 LIBS=		-lm -lz -lpthread
 
