@@ -386,6 +386,7 @@ static void worker(void *data, long _i, int tid)
 	uint64_t i = (w->prime * _i) % w->e->mcnt[1];
 	if (unitig1(&d->a, i, &d->str, &d->cov, d->z.k, d->z.nei, &d->z.nsr) >= 0) { // then we keep the unitig
 		uint64_t *p[2], x[2];
+		magv_t *q;
 		p[0] = w->visited + (d->z.k[0]>>6); x[0] = 1LLU<<(d->z.k[0]&0x3f);
 		p[1] = w->visited + (d->z.k[1]>>6); x[1] = 1LLU<<(d->z.k[1]&0x3f);
 		if ((__sync_fetch_and_or(p[0], x[0])&x[0]) || (__sync_fetch_and_or(p[1], x[1])&x[1])) return;
@@ -397,7 +398,8 @@ static void worker(void *data, long _i, int tid)
 		}
 		memcpy(d->z.seq, d->str.s, d->z.len);
 		memcpy(d->z.cov, d->cov.s, d->z.len + 1);
-		kv_push(magv_t, d->v, d->z);
+		kv_pushp(magv_t, d->v, &q);
+		mag_v_copy_to_empty(q, &d->z);
 	}
 }
 

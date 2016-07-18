@@ -538,7 +538,7 @@ double mag_cal_rdist(mag_t *g)
 
 void mag_init_opt(magopt_t *o)
 {
-	o = calloc(1, sizeof(magopt_t));
+	memset(o, 0, sizeof(magopt_t));
 	o->max_arc = 512;
 	o->min_dratio0 = 0.6;
 	o->trim_len = 0;

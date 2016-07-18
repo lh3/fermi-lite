@@ -32,6 +32,7 @@ void fml_opt_init(fml_opt_t *opt)
 	opt->min_merge_len = 0;
 	bfc_opt_init(&opt->bfc_opt);
 	mag_init_opt(&opt->mag_opt);
+	opt->mag_opt.flag = MAG_F_CLEAN | MAG_F_NO_SIMPL;
 	opt->bfc_opt.n_threads = opt->n_threads;
 }
 
@@ -58,18 +59,22 @@ struct rld_t *fml_fmi_gen_core(int n, bseq1_t *seq, int is_mt)
 	for (k = 0; k < n; ++k) {
 		int i;
 		bseq1_t *s = &seq[k];
+		free(s->qual); free(s->name);
 		for (i = 0; i < s->l_seq; ++i)
 			s->seq[i] = seq_nt6_table[(int)s->seq[i]];
 		for (i = 0; i < s->l_seq; ++i)
 			if (s->seq[i] == 5) break;
-		if (i < s->l_seq) continue;
+		if (i < s->l_seq) {
+			free(s->seq);
+			continue;
+		}
 		if (is_rev_same(s->l_seq, s->seq))
 			--s->l_seq, s->seq[s->l_seq] = 0;
+		seq_reverse(s->l_seq, (uint8_t*)s->seq);
 		kputsn(s->seq, s->l_seq + 1, &str);
 		seq_revcomp6(s->l_seq, (uint8_t*)s->seq);
-		if (s->l_seq&1) s->seq[i] = 5 - s->seq[i];
 		kputsn(s->seq, s->l_seq + 1, &str);
-		free(s->seq); free(s->qual); free(s->name);
+		free(s->seq);
 	}
 	free(seq);
 	mr_insert_multi(mr, str.l, (uint8_t*)str.s, is_mt);
