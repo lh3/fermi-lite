@@ -424,6 +424,7 @@ static int bfc_ec1dir(bfc_ec1buf_t *e, const ecseq_t *seq, ecseq_t *ec, int star
 				if (c == 0 || b != c->b) {
 					int s;
 					bfc_kmer_t x = z.x;
+					pen.ec = 0, pen.ec_high = 0, pen.absent = 0, pen.absent_high = 0, pen.b = b;
 					if (c) { // not over the end
 						if (c->q && z.ecpos_high[BFC_EC_HIST_HIGH-1] >= 0 && z.i - z.ecpos_high[BFC_EC_HIST_HIGH-1] < e->opt->win_multi_ec) continue; // no close highQ corrections
 						if (z.ecpos[BFC_EC_HIST-1] >= 0 && z.i - z.ecpos[BFC_EC_HIST-1] < e->opt->win_multi_ec) continue; // no clustered corrections
