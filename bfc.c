@@ -45,7 +45,7 @@ typedef struct { // cache to reduce locking
 
 typedef struct {
 	int n_seqs;
-	bseq1_t *seqs;
+	const bseq1_t *seqs;
 	const bfc_opt_t *opt;
 	bfc_ch_t *ch;
 	int *n_buf;
@@ -83,7 +83,7 @@ static void bfc_kmer_insert(cnt_step_t *cs, const bfc_kmer_t *x, int is_high, in
 static void worker_count(void *_data, long k, int tid)
 {
 	cnt_step_t *cs = (cnt_step_t*)_data;
-	bseq1_t *s = &cs->seqs[k];
+	const bseq1_t *s = &cs->seqs[k];
 	const bfc_opt_t *o = cs->opt;
 	int i, l;
 	bfc_kmer_t x = bfc_kmer_null;
@@ -98,7 +98,7 @@ static void worker_count(void *_data, long k, int tid)
 	}
 }
 
-struct bfc_ch_s *fml_count(const fml_opt_t *opt, int n, bseq1_t *seq)
+struct bfc_ch_s *fml_count(const fml_opt_t *opt, int n, const bseq1_t *seq)
 {
 	int i;
 	cnt_step_t cs;
