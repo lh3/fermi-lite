@@ -598,4 +598,5 @@ void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq)
 	for (i = 0; i < es.opt->n_threads; ++i)
 		ec1buf_destroy(es.e[i]);
 	free(es.e);
+	bfc_ch_destroy(ch);
 }

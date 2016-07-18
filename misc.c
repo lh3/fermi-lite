@@ -228,6 +228,7 @@ void fml_utg_destroy(int n, fml_utg_t *utg)
 		free(utg[i].cov);
 		free(utg[i].ovlp);
 	}
+	free(utg);
 }
 
 fml_utg_t *fml_assemble(const fml_opt_t *opt, int n_seqs, bseq1_t *seqs, int *n_utg)

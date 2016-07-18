@@ -438,7 +438,7 @@ mag_t *fml_fmi2mag_core(const rld_t *e, int min_match, int min_merge_len, int n_
 		free(w.d[j].z.nei[0].a); free(w.d[j].z.nei[1].a); free(w.d[j].z.seq); free(w.d[j].z.cov);
 		free(w.d[j].a.str.s); free(w.d[j].str.s); free(w.d[j].cov.s);
 	}
-	free(w.used); free(w.bend); free(w.visited);
+	free(w.d); free(w.used); free(w.bend); free(w.visited);
 
 	mag_g_build_hash(g);
 	mag_g_amend(g);
