@@ -42,18 +42,112 @@ typedef struct {
 struct rld_t;
 struct mag_t;
 
+typedef struct {
+	uint32_t tid;
+	uint32_t len:31, from:1;
+} fml_ovlp_t;
+
+typedef struct {
+	int32_t len;      // length of sequence
+	int32_t nsr;      // number of supporting reads
+	char *seq;        // unitig sequence, in the nt6 encoding
+	char *cov;        // per-base coverage
+	int n_ovlp[2];    // number of 5'-end [0] and 3'-end [1] overlaps
+	fml_ovlp_t *ovlp; // overlaps, of size n_ovlp[0]+n_ovlp[1]
+} fml_utg_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/**
+ * Initialize default parameters
+ *
+ * @param opt      (out) pointer to parameters
+ */
 void fml_opt_init(fml_opt_t *opt);
-bseq1_t *bseq_read(const char *fn, int *n_);
+
+/**
+ * Assemble a list of sequences
+ *
+ * @param opt      parameters
+ * @param n_seqs   number of input sequences
+ * @param seqs     sequences to assemble; FREED on return
+ * @param n_utg    (out) number of unitigs in return
+ *
+ * @return list of unitigs
+ */
+fml_utg_t *fml_assemble(const fml_opt_t *opt, int n_seqs, bseq1_t *seqs, int *n_utg);
+
+/**
+ * Free unitigs
+ *
+ * @param n_utg    number of unitigs
+ * @param utg      list of unitigs
+ */
+void fml_utg_destroy(int n_utg, fml_utg_t *utg);
+
+/**
+ * Read all sequences from FASTA/FASTQ
+ *
+ * @param fn       filename; NULL or "-" for stdin
+ * @param n        (out) number of sequences read into RAM
+ *
+ * @return list of sequences
+ */
+bseq1_t *bseq_read(const char *fn, int *n);
+
+/**
+ * Error correction
+ *
+ * @param opt       parameters
+ * @param n         number of sequences
+ * @param seq       sequences; corrected IN PLACE
+ */
 void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq);
-struct rld_t *fml_fmi_gen(const fml_opt_t *opt, int n, bseq1_t *seq);
+
+/**
+ * Construct FMD-index
+ *
+ * @param opt       parameters
+ * @param n         number of sequences
+ * @param seq       sequences; FREED on return
+ *
+ * @return FMD-index
+ */
+struct rld_t *fml_seq2fmi(const fml_opt_t *opt, int n, bseq1_t *seq);
+
+/**
+ * Generate initial overlap graph
+ *
+ * @param opt       parameters
+ * @param e         FMD-index; FREED on return
+ *
+ * @return overlap graph in the "mag" structure
+ */
+struct mag_t *fml_fmi2mag(const fml_opt_t *opt, struct rld_t *e);
+
+/**
+ * Clean a mag graph
+ *
+ * @param opt       parameters
+ * @param g         overlap graph; modified IN PLACE
+ */
+void fml_mag_clean(const fml_opt_t *opt, struct mag_t *g);
+
+/**
+ * Convert a graph in mag to fml_utg_t
+ *
+ * @param g         graph in the "mag" structure; FREED on return
+ * @param n_utg     (out) number of unitigs
+ *
+ * @return list of unitigs
+ */
+fml_utg_t *fml_mag2utg(struct mag_t *g, int *n_utg);
+
+void fml_utg_print(int n, const fml_utg_t *utg);
 void fml_fmi_destroy(struct rld_t *e);
-struct mag_t *fml_assemble(const fml_opt_t *opt, const struct rld_t *e);
-void fml_graph_clean(const fml_opt_t *opt, struct mag_t *g);
-void fml_graph_destroy(struct mag_t *g);
+void fml_mag_destroy(struct mag_t *g);
 
 #ifdef __cplusplus
 }
