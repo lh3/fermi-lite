@@ -24,3 +24,9 @@ depend:
 		(LC_ALL=C; export LC_ALL; makedepend -Y -- $(CFLAGS) $(DFLAGS) -- *.c)
 
 # DO NOT DELETE
+
+bfc.o: htab.h kmer.h internal.h fml.h
+bseq.o: fml.h kseq.h
+htab.o: htab.h kmer.h khash.h
+misc.o: internal.h fml.h
+test.o: fml.h htab.h kmer.h

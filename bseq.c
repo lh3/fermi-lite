@@ -50,7 +50,6 @@ bseq1_t *bseq_read(const char *fn, int *n_)
 		s->seq = strdup(ks->seq.s);
 		s->qual = ks->qual.l? strdup(ks->qual.s) : 0;
 		s->l_seq = ks->seq.l;
-		s->aux = 0;
 		size += seqs[n++].l_seq;
 	}
 	*n_ = n;

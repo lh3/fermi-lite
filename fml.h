@@ -5,8 +5,7 @@
 
 typedef struct {
 	int l_seq;
-	uint32_t aux, aux2;
-	char *name, *comment, *seq, *qual;
+	char *name, *seq, *qual;
 } bseq1_t;
 
 typedef struct {
@@ -26,15 +25,13 @@ typedef struct {
 	bfc_opt_t bfc_opt;
 } fml_opt_t;
 
-struct bfc_ch_s;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void fml_opt_init(fml_opt_t *opt);
 bseq1_t *bseq_read(const char *fn, int *n_);
-struct bfc_ch_s *fml_count(const fml_opt_t *opt, int n, bseq1_t *seq);
+void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq);
 
 #ifdef __cplusplus
 }
