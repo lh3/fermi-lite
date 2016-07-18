@@ -27,6 +27,9 @@ unsigned char seq_nt6_table[256] = {
 
 void fml_opt_init(fml_opt_t *opt)
 {
+	opt->n_threads = 1;
+	opt->min_match = 55;
+	opt->min_merge_len = 71;
 	bfc_opt_init(&opt->bfc_opt);
 	mag_init_opt(&opt->mag_opt);
 }
@@ -40,7 +43,7 @@ static inline int is_rev_same(int l, const char *s)
 	return (i == l>>1);
 }
 
-struct rld_t *fml_fmi_gen(int n, bseq1_t *seq, int is_mt)
+struct rld_t *fml_fmi_gen_core(int n, bseq1_t *seq, int is_mt)
 {
 	mrope_t *mr;
 	kstring_t str = {0,0,0};
@@ -65,7 +68,9 @@ struct rld_t *fml_fmi_gen(int n, bseq1_t *seq, int is_mt)
 		seq_revcomp6(s->l_seq, (uint8_t*)s->seq);
 		if (s->l_seq&1) s->seq[i] = 5 - s->seq[i];
 		kputsn(s->seq, s->l_seq + 1, &str);
+		free(s->seq); free(s->qual); free(s->name);
 	}
+	free(seq);
 	mr_insert_multi(mr, str.l, (uint8_t*)str.s, is_mt);
 	free(str.s);
 
@@ -87,8 +92,26 @@ struct rld_t *fml_fmi_gen(int n, bseq1_t *seq, int is_mt)
 	return e;
 }
 
+struct rld_t *fml_fmi_gen(const fml_opt_t *opt, int n, bseq1_t *seq)
+{
+	return fml_fmi_gen_core(n, seq, opt->n_threads > 1? 1 : 0);
+}
+
+void fml_fmi_destroy(rld_t *e)
+{
+	rld_destroy(e);
+}
+
 void fml_graph_clean(const fml_opt_t *opt, struct mag_t *g)
 {
-	mag_g_clean(g, &opt->mag_opt);
-	mag_g_trim_open(g, &opt->mag_opt);
+	magopt_t o = opt->mag_opt;
+	o.min_merge_len = opt->min_merge_len;
+	mag_g_merge(g, 1, opt->min_merge_len);
+	mag_g_clean(g, &o);
+	mag_g_trim_open(g, &o);
+}
+
+void fml_graph_destroy(struct mag_t *g)
+{
+	mag_g_destroy(g);
 }

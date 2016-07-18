@@ -401,7 +401,7 @@ static void worker(void *data, long _i, int tid)
 	}
 }
 
-mag_t *fml_assemble(const rld_t *e, int min_match, int min_merge_len, int n_threads)
+mag_t *fml_assemble_core(const rld_t *e, int min_match, int min_merge_len, int n_threads)
 {
 	extern void kt_for(int n_threads, void (*func)(void*,long,int), void *data, long n);
 	worker_t w;
@@ -443,4 +443,9 @@ mag_t *fml_assemble(const rld_t *e, int min_match, int min_merge_len, int n_thre
 	g->rdist = mag_cal_rdist(g);
 //	mag_g_merge(g, 1, opt->min_merge_len);
 	return g;
+}
+
+mag_t *fml_assemble(const fml_opt_t *opt, const rld_t *e)
+{
+	return fml_assemble_core(e, opt->min_match, opt->min_merge_len, opt->n_threads);
 }

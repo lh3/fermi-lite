@@ -34,6 +34,7 @@ typedef struct {
 } magopt_t;
 
 typedef struct {
+	int n_threads, min_match, min_merge_len;
 	bfc_opt_t bfc_opt;
 	magopt_t mag_opt;
 } fml_opt_t;
@@ -48,9 +49,11 @@ extern "C" {
 void fml_opt_init(fml_opt_t *opt);
 bseq1_t *bseq_read(const char *fn, int *n_);
 void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq);
-struct rld_t *fml_fmi_gen(int n, bseq1_t *seq, int is_mt);
-struct mag_t *fml_assemble(const struct rld_t *e, int min_match, int min_merge_len, int n_threads);
+struct rld_t *fml_fmi_gen(const fml_opt_t *opt, int n, bseq1_t *seq);
+void fml_fmi_destroy(struct rld_t *e);
+struct mag_t *fml_assemble(const fml_opt_t *opt, const struct rld_t *e);
 void fml_graph_clean(const fml_opt_t *opt, struct mag_t *g);
+void fml_graph_destroy(struct mag_t *g);
 
 #ifdef __cplusplus
 }

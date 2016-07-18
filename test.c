@@ -15,6 +15,6 @@ int main(int argc, char *argv[])
 	seqs = bseq_read(argv[1], &n_seqs);
 	fml_correct(&opt, n_seqs, seqs);
 //	for (i = 0; i < n_seqs; ++i) printf("@%s\n%s\n+\n%s\n", seqs[i].name, seqs[i].seq, seqs[i].qual);
-	e = fml_fmi_gen(n_seqs, seqs, 1);
+	e = fml_fmi_gen(&opt, n_seqs, seqs);
 	return 0;
 }
