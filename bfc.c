@@ -17,7 +17,7 @@ void bfc_opt_init(bfc_opt_t *opt)
 	memset(opt, 0, sizeof(bfc_opt_t));
 	opt->n_threads = 1;
 	opt->q = 20;
-	opt->k = 23;
+	opt->k = 17;
 	opt->l_pre = 16;
 
 	opt->min_cov = 4; // in BFC, this defaults to 3 because it has Bloom pre-filter

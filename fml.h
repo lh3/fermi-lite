@@ -29,8 +29,7 @@ typedef struct {
 
 typedef struct {
 	int flag, max_arc, min_ovlp, min_elen, min_ensr, min_insr, max_bdist, max_bvtx, min_merge_len, trim_len, trim_depth;
-	float min_dratio0, min_dratio1;
-	float max_bcov, max_bfrac;
+	float min_dratio1, max_bcov, max_bfrac;
 } magopt_t;
 
 typedef struct {
@@ -66,6 +65,11 @@ extern "C" {
  * @param opt      (out) pointer to parameters
  */
 void fml_opt_init(fml_opt_t *opt);
+
+void fml_opt_set_ec_k(fml_opt_t *opt, int k);
+void fml_opt_set_min_ovlp(fml_opt_t *opt, int min_ovlp);
+void fml_opt_set_clean_ovlp(fml_opt_t *opt, int min_ovlp, float min_drop_ratio);
+void fml_opt_set_merge_ovlp(fml_opt_t *opt, int min_merge_ovlp);
 
 /**
  * Assemble a list of sequences

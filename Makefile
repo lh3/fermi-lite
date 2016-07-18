@@ -6,7 +6,7 @@ OBJS=		kthread.o misc.o \
 			bseq.o htab.o bfc.o \
 			rle.o rope.o mrope.o rld0.o \
 			unitig.o mag.o bubble.o ksw.o
-PROG=		fml-test
+PROG=		fml-example
 LIBS=		-lm -lz -lpthread
 
 .SUFFIXES:.c .o
@@ -16,8 +16,11 @@ LIBS=		-lm -lz -lpthread
 
 all:$(PROG)
 
-fml-test:$(OBJS) test.o
-		$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
+fml-example:libfml.a example.o
+		$(CC) $(CFLAGS) $^ -o $@ -L. -lfml $(LIBS)
+
+libfml.a:$(OBJS)
+		$(AR) -csru $@ $(OBJS)
 
 clean:
 		rm -fr gmon.out *.o ext/*.o a.out $(PROG) *~ *.a *.dSYM session*
@@ -29,10 +32,15 @@ depend:
 
 bfc.o: htab.h kmer.h internal.h fml.h kvec.h ksort.h
 bseq.o: fml.h kseq.h
+bubble.o: mag.h kstring.h fml.h kvec.h ksw.h internal.h khash.h
+example.o: fml.h
 htab.o: htab.h kmer.h khash.h
-misc.o: internal.h fml.h kstring.h rle.h mrope.h rope.h rld0.h
+ksw.o: ksw.h
+mag.o: mag.h kstring.h fml.h kvec.h internal.h kseq.h khash.h ksort.h
+misc.o: internal.h fml.h kstring.h rle.h mrope.h rope.h rld0.h mag.h kvec.h
+misc.o: khash.h
 mrope.o: mrope.h rope.h
 rld0.o: rld0.h
 rle.o: rle.h
 rope.o: rle.h rope.h
-test.o: fml.h htab.h kmer.h
+unitig.o: kvec.h kstring.h rld0.h mag.h fml.h internal.h ksort.h

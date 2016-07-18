@@ -540,7 +540,6 @@ void mag_init_opt(magopt_t *o)
 {
 	memset(o, 0, sizeof(magopt_t));
 	o->max_arc = 512;
-	o->min_dratio0 = 0.6;
 	o->trim_len = 0;
 	o->trim_depth = 6;
 

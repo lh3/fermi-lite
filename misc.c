@@ -30,12 +30,35 @@ unsigned char seq_nt6_table[256] = {
 void fml_opt_init(fml_opt_t *opt)
 {
 	opt->n_threads = 1;
-	opt->min_match = 55;
+	opt->min_match = 33;
 	opt->min_merge_len = 0;
 	bfc_opt_init(&opt->bfc_opt);
 	mag_init_opt(&opt->mag_opt);
 	opt->mag_opt.flag = MAG_F_CLEAN | MAG_F_NO_SIMPL;
 	opt->bfc_opt.n_threads = opt->n_threads;
+}
+
+void fml_opt_set_ec_k(fml_opt_t *opt, int k)
+{
+	opt->bfc_opt.k = k;
+	if (k<<1 < opt->bfc_opt.l_pre)
+		opt->bfc_opt.l_pre = k;
+}
+
+void fml_opt_set_min_ovlp(fml_opt_t *opt, int min_ovlp)
+{
+	opt->min_match = min_ovlp;
+}
+
+void fml_opt_set_clean_ovlp(fml_opt_t *opt, int min_ovlp, float min_drop_ratio)
+{
+	if (min_ovlp > 0) opt->mag_opt.min_ovlp = min_ovlp;
+	if (min_drop_ratio > 0.) opt->mag_opt.min_dratio1 = min_drop_ratio;
+}
+
+void fml_opt_set_merge_ovlp(fml_opt_t *opt, int min_merge_ovlp)
+{
+	opt->min_merge_len = opt->mag_opt.min_merge_len = min_merge_ovlp;
 }
 
 static inline int is_rev_same(int l, const char *s)
@@ -201,12 +224,13 @@ void fml_utg_print(int n, const fml_utg_t *utg)
 			kputw(u->ovlp[j].tid, &out); kputc(',', &out);
 			kputw(u->ovlp[j].len, &out); kputc(';', &out);
 		}
-		if (j == 0) kputc('.', &out);
+		if (u->n_ovlp[0] == 0) kputc('.', &out);
 		kputc('\t', &out);
 		for (; j < u->n_ovlp[0] + u->n_ovlp[1]; ++j) {
 			kputw(u->ovlp[j].tid, &out); kputc(',', &out);
 			kputw(u->ovlp[j].len, &out); kputc(';', &out);
 		}
+		if (u->n_ovlp[1] == 0) kputc('.', &out);
 		kputc('\n', &out);
 		l = out.l;
 		kputsn(u->seq, u->len, &out);
@@ -236,11 +260,18 @@ fml_utg_t *fml_assemble(const fml_opt_t *opt, int n_seqs, bseq1_t *seqs, int *n_
 	rld_t *e;
 	mag_t *g;
 	fml_utg_t *utg;
+	uint64_t tot_len = 0;
+	int i;
+	fml_opt_t o;
 
-	fml_correct(opt, n_seqs, seqs);
-	e = fml_seq2fmi(opt, n_seqs, seqs);
-	g = fml_fmi2mag(opt, e);
-	fml_mag_clean(opt, g);
+	for (i = 0; i < n_seqs; ++i)
+		tot_len += seqs[i].l_seq;
+	o = *opt;
+	o.mag_opt.min_elen = (int)((double)tot_len / n_seqs * 2.5 + .499);
+	if (opt->bfc_opt.k > 0) fml_correct(opt, n_seqs, seqs);
+	e = fml_seq2fmi(&o, n_seqs, seqs);
+	g = fml_fmi2mag(&o, e);
+	fml_mag_clean(&o, g);
 	utg = fml_mag2utg(g, n_utg);
 	return utg;
 }
