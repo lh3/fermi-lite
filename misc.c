@@ -29,9 +29,10 @@ void fml_opt_init(fml_opt_t *opt)
 {
 	opt->n_threads = 1;
 	opt->min_match = 55;
-	opt->min_merge_len = 71;
+	opt->min_merge_len = 0;
 	bfc_opt_init(&opt->bfc_opt);
 	mag_init_opt(&opt->mag_opt);
+	opt->bfc_opt.n_threads = opt->n_threads;
 }
 
 static inline int is_rev_same(int l, const char *s)
