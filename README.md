@@ -1,3 +1,12 @@
+## Getting Started
+```sh
+git clone https://github.com/lh3/fermi-lite
+cd fermi-lite && make
+./fml-asm test/MT-simu.fq.gz > MT.fq
+# to compile your program:
+gcc -Wall -O2 prog.c -o prog -L/path/to/fermi-lite -lfml -lz -lm -lpthread
+```
+
 ## Introduction
 
 Fermi-lite is a standalone C *library* for assembling Illumina short reads in
