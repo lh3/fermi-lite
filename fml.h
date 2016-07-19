@@ -1,7 +1,7 @@
 #ifndef FML_H
 #define FML_H
 
-#define FML_VERSION "r34"
+#define FML_VERSION "r35"
 
 #include <stdint.h>
 
@@ -26,6 +26,7 @@ typedef struct {
 	int n_threads;     // number of threads; don't use multi-threading for small data sets
 	int ec_k;          // k-mer length for error correction; 0 for auto estimate
 	int ec_min_cov;    // threshold for a solid k-mer in ec
+	int ec_trim_k;
 	int min_asm_ovlp;  // min overlap length during assembly
 	int min_merge_len; // during assembly, don't explicitly merge an overlap if shorter than this value
 	magopt_t mag_opt;  // graph cleaning options
@@ -114,6 +115,7 @@ void fml_opt_adjust(fml_opt_t *opt, int n_seqs, const bseq1_t *seqs);
  * @param seq       array of sequences; corrected IN PLACE
  */
 void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq);
+void fml_fltuniq(const fml_opt_t *opt, int n, bseq1_t *seq);
 
 /**
  * Construct FMD-index

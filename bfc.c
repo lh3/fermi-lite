@@ -18,6 +18,7 @@ typedef struct {
 
 	int max_end_ext;
 	int win_multi_ec;
+	float min_trim_frac;
 
 	// these ec options cannot be changed on the command line
 	int w_ec, w_ec_high, w_absent, w_absent_high;
@@ -35,6 +36,7 @@ void bfc_opt_init(bfc_opt_t *opt)
 	opt->min_cov = 4; // in BFC, this defaults to 3 because it has Bloom pre-filter
 	opt->win_multi_ec = 10;
 	opt->max_end_ext = 5;
+	opt->min_trim_frac = .8;
 
 	opt->w_ec = 1;
 	opt->w_ec_high = 7;
@@ -569,20 +571,58 @@ ecstat_t bfc_ec1(bfc_ec1buf_t *e, char *seq, char *qual)
 
 typedef struct {
 	const bfc_opt_t *opt;
+	const bfc_ch_t *ch;
 	bfc_ec1buf_t **e;
 	int64_t n_processed;
-	int n_seqs;
+	int n_seqs, flt_uniq;
 	bseq1_t *seqs;
 } ec_step_t;
+
+static uint64_t max_streak(int k, const bfc_ch_t *ch, const bseq1_t *s)
+{
+	int i, l;
+	uint64_t max = 0, t = 0;
+	bfc_kmer_t x = bfc_kmer_null;
+	for (i = l = 0; i < s->l_seq; ++i) {
+		int c = seq_nt6_table[(uint8_t)s->seq[i]] - 1;
+		if (c < 4) { // not an ambiguous base
+			bfc_kmer_append(k, x.x, c);
+			if (++l >= k) { // ok, we have a k-mer now
+				if (bfc_ch_kmer_occ(ch, &x) > 0) t += 1ULL<<32;
+				else t = i + 1;
+			} else t = i + 1;
+		} else l = 0, x = bfc_kmer_null, t = i + 1;
+		max = max > t? max : t;
+	}
+	return max;
+}
 
 static void worker_ec(void *_data, long k, int tid)
 {
 	ec_step_t *es = (ec_step_t*)_data;
 	bseq1_t *s = &es->seqs[k];
-	bfc_ec1(es->e[tid], s->seq, s->qual);
+	if (es->flt_uniq) {
+		uint64_t max;
+		max = max_streak(es->opt->k, es->ch, s);
+		if (max>>32 && (double)((max>>32) + es->opt->k - 1) / s->l_seq > es->opt->min_trim_frac) {
+			int start = (uint32_t)max, end = start + (max>>32);
+			start -= es->opt->k - 1;
+			assert(start >= 0 && end <= s->l_seq);
+			memmove(s->seq, s->seq + start, end - start);
+			s->l_seq = end - start;
+			s->seq[s->l_seq] = 0;
+			if (s->qual) {
+				memmove(s->qual, s->qual + start, s->l_seq);
+				s->qual[s->l_seq] = 0;
+			}
+		} else {
+			free(s->seq); free(s->qual);
+			s->l_seq = 0, s->seq = s->qual = 0;
+		}
+	} else bfc_ec1(es->e[tid], s->seq, s->qual);
 }
 
-void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq)
+void fml_correct_core(const fml_opt_t *opt, int flt_uniq, int n, bseq1_t *seq)
 {
 	bfc_ch_t *ch;
 	int i, mode;
@@ -592,14 +632,15 @@ void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq)
 
 	// initialize BFC options
 	bfc_opt_init(&bfc_opt);
-	bfc_opt.n_threads = opt->n_threads, bfc_opt.k = opt->ec_k, bfc_opt.min_cov = opt->ec_min_cov; // copy from FML options
+	bfc_opt.n_threads = opt->n_threads, bfc_opt.min_cov = opt->ec_min_cov; // copy from FML options
+	bfc_opt.k = flt_uniq? opt->ec_trim_k : opt->ec_k;
 	for (i = 0; i < n; ++i) tot_len += seq[i].l_seq; // compute total length
 	bfc_opt.l_pre = tot_len - 8 < 20? tot_len - 8 : 20;
 
 	memset(&es, 0, sizeof(ec_step_t));
-	es.opt = &bfc_opt, es.n_seqs = n, es.seqs = seq;
+	es.opt = &bfc_opt, es.n_seqs = n, es.seqs = seq, es.flt_uniq = flt_uniq;
 
-	ch = fml_count(n, seq, bfc_opt.k, bfc_opt.q, bfc_opt.l_pre, bfc_opt.n_threads);
+	es.ch = ch = fml_count(n, seq, bfc_opt.k, bfc_opt.q, bfc_opt.l_pre, bfc_opt.n_threads);
 	mode = bfc_ch_hist(ch, hist, hist_high);
 
 	es.e = calloc(es.opt->n_threads, sizeof(void*));
@@ -610,4 +651,14 @@ void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq)
 		ec1buf_destroy(es.e[i]);
 	free(es.e);
 	bfc_ch_destroy(ch);
+}
+
+void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq)
+{
+	fml_correct_core(opt, 0, n, seq);
+}
+
+void fml_fltuniq(const fml_opt_t *opt, int n, bseq1_t *seq)
+{
+	fml_correct_core(opt, 1, n, seq);
 }

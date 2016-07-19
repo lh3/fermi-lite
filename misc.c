@@ -33,6 +33,7 @@ void fml_opt_init(fml_opt_t *opt)
 	opt->n_threads = 1;
 	opt->ec_k = 0;
 	opt->ec_min_cov = 4;
+	opt->ec_trim_k = 33;
 	opt->min_asm_ovlp = 33;
 	opt->min_merge_len = 0;
 	mag_init_opt(&opt->mag_opt);
@@ -75,6 +76,7 @@ struct rld_t *fml_fmi_gen(int n, bseq1_t *seq, int is_mt)
 	for (k = 0; k < n; ++k) {
 		int i;
 		bseq1_t *s = &seq[k];
+		if (s->l_seq == 0) continue;
 		free(s->qual);
 		for (i = 0; i < s->l_seq; ++i)
 			s->seq[i] = seq_nt6_table[(int)s->seq[i]];
@@ -256,6 +258,7 @@ fml_utg_t *fml_assemble(const fml_opt_t *opt0, int n_seqs, bseq1_t *seqs, int *n
 
 	fml_opt_adjust(&opt, n_seqs, seqs);
 	if (opt.ec_k >= 0) fml_correct(&opt, n_seqs, seqs);
+	if (opt.ec_trim_k > 0) fml_fltuniq(&opt, n_seqs, seqs);
 	e = fml_seq2fmi(&opt, n_seqs, seqs);
 	g = fml_fmi2mag(&opt, e);
 	fml_mag_clean(&opt, g);
