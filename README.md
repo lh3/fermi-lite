@@ -17,15 +17,24 @@ projects.
 For now, see [example.c][example] for the basic use of the library. Here is a
 sketch of the example:
 ```cpp
-int i, n_seqs, n_utgs;
-bseq1_t *seqs;
-fml_utg_t *utgs;
-seqs = bseq_read(fastq_file_name, &n_seqs); // or fill the array with callers' functions
-fml_opt_init(&opt);
-utgs = fml_assemble(&opt, n_seqs, seqs, &n_utgs);
-for (i = 0; i < n_utgs; ++i)
-	printf("@%d\n%s\n+\n%s\n", i+1, utgs[i].seq, utgs[i].cov);
-fml_utg_destroy(n_utgs, utg);
+#include <stdio.h>
+#include "fml.h"
+
+int main(int argc, char *argv[])
+{
+	int i, n_seqs, n_utgs;
+	bseq1_t *seqs;
+	fml_utg_t *utgs;
+	fml_opt_t opt;
+	if (argc == 1) return 1;     // do nothing if there is no input file
+	seqs = bseq_read(argv[1], &n_seqs); // or fill the array with callers' functions
+	fml_opt_init(&opt);          // initialize parameters
+	utgs = fml_assemble(&opt, n_seqs, seqs, &n_utgs); // assemble!
+	for (i = 0; i < n_utgs; ++i) // output in fasta
+		printf(">%d\n%s\n", i+1, utgs[i].seq);
+	fml_utg_destroy(n_utgs, utgs);
+	return 0;
+}
 ```
 The output is in fact a graph. You may have a look at the [header file][header]
 for details.
