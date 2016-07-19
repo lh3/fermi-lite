@@ -8,8 +8,9 @@ heterozygous events. It can be used as a local reassembler for variant calling.
 Fermi-lite integrates the C source code of [bfc][bfc] for error correction,
 [ropebwt2][rb2] for FM-index construction and [fermi2][fm2] for overlap-based
 assembly. It is largely an in-memory light-weight version of [fermikit][fk]
-without generating any intermediate files on disk. Fermi-lite is unable to
-assembly human whole genome, but is very convenient to assemble small regions.
+without generating any intermediate files on disk, and inherits the
+performance and relatively small memory footprint of all these separate
+projects.
 
 ## Usage
 
@@ -31,17 +32,18 @@ for details.
 
 ## Limitations
 
-1. Fermi-lite can assemble bacterial genomes. It is very fast. The continguity
-   and accuracy is expected to be similar to the older assemblers, but may not
-   compete with more recent mainstream assemblers.
+1. Fermi-lite can assemble bacterial genomes. It is fairly fast on multiple
+   threads. The continguity and accuracy is expected to be similar to the older
+   assemblers, but may not compete with more recent mainstream assemblers.
 
 2. Fermi-lite does not work with genomes more than tens of megabases. It would
    take too much memory as it stages all data in memory. For large genomes,
    please use [fermikit][fk] instead.
 
 3. This is the first iteration of fermi-lite. It is still immarture. In
-   particular, I hope fermi-lite can be foolproof, which is very challenging
-   given the high variability of input data.
+   particular, I hope fermi-lite can be smarter to automatically set various
+   parameters based on input, which is very challenging given the high
+   variability of input data.
 
 [bfc]: http://github.com/lh3/bfc
 [rb2]: http://github.com/lh3/ropebwt2
