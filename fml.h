@@ -1,7 +1,7 @@
 #ifndef FML_H
 #define FML_H
 
-#define FML_VERSION "r39"
+#define FML_VERSION "r40"
 
 #include <stdint.h>
 
@@ -14,7 +14,7 @@ typedef struct {
 #define MAG_F_NO_SIMPL   0x80
 
 typedef struct {
-	int flag, max_arc, min_ovlp, min_elen, min_ensr, min_insr, max_bdist, max_bvtx, min_merge_len, trim_len, trim_depth;
+	int flag, min_ovlp, min_elen, min_ensr, min_insr, max_bdist, max_bvtx, min_merge_len, trim_len, trim_depth;
 	float min_dratio1, max_bcov, max_bfrac;
 } magopt_t;
 
