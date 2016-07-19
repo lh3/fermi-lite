@@ -9,11 +9,10 @@ gcc -Wall -O2 prog.c -o prog -L/path/to/fermi-lite -lfml -lz -lm -lpthread
 
 ## Introduction
 
-Fermi-lite is a standalone C *library* for assembling Illumina short reads in
-regions from 100bp to 10 million bp in size. Unlike mainstream *de novo*
-assemblers which try to achieve good contiguity, fermi-lite aims to retain
-heterozygous events at length. It can be used as a local reassembler for
-variant calling.
+Fermi-lite is a standalone C library as well as a command-line tool for
+assembling Illumina short reads in regions from 100bp to 10 million bp in size.
+It aims to retain heterozygous events at length and can be used as a local
+reassembler for calling sequence variants.
 
 Fermi-lite integrates the C source code of [bfc][bfc] for error correction,
 [ropebwt2][rb2] for FM-index construction and [fermi2][fm2] for overlap-based
