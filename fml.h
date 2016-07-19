@@ -1,6 +1,8 @@
 #ifndef FML_H
 #define FML_H
 
+#define FML_VERSION "r25"
+
 #include <stdint.h>
 
 typedef struct {

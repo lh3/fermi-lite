@@ -38,7 +38,7 @@ htab.o: htab.h kmer.h khash.h
 ksw.o: ksw.h
 mag.o: mag.h kstring.h fml.h kvec.h internal.h kseq.h khash.h ksort.h
 misc.o: internal.h fml.h kstring.h rle.h mrope.h rope.h rld0.h mag.h kvec.h
-misc.o: khash.h
+misc.o: htab.h kmer.h khash.h
 mrope.o: mrope.h rope.h
 rld0.o: rld0.h
 rle.o: rle.h
