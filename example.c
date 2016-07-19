@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 		else if (c == 't') opt.n_threads = atoi(optarg);
 	}
 	if (argc == optind) {
-		fprintf(stderr, "Usage: fml-example [options] <in.fq>\n");
+		fprintf(stderr, "Usage: fml-asm [options] <in.fq>\n");
 		fprintf(stderr, "Options:\n");
 		fprintf(stderr, "  -e INT     k-mer length for error correction (0 for auto; -1 to disable) [%d]\n", opt.ec_k);
 		fprintf(stderr, "  -c INT     min occurrence for a k-mer to be considered solid in ec [%d]\n", opt.ec_min_cov);

@@ -6,7 +6,7 @@ OBJS=		kthread.o misc.o \
 			bseq.o htab.o bfc.o \
 			rle.o rope.o mrope.o rld0.o \
 			unitig.o mag.o bubble.o ksw.o
-PROG=		fml-example
+PROG=		fml-asm
 LIBS=		-lm -lz -lpthread
 
 .SUFFIXES:.c .o
@@ -16,7 +16,7 @@ LIBS=		-lm -lz -lpthread
 
 all:$(PROG)
 
-fml-example:libfml.a example.o
+fml-asm:libfml.a example.o
 		$(CC) $(CFLAGS) $^ -o $@ -L. -lfml $(LIBS)
 
 libfml.a:$(OBJS)
