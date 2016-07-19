@@ -107,18 +107,6 @@ uint64_t bfc_ch_count(const bfc_ch_t *ch)
 	return cnt;
 }
 
-void bfc_ch_drop_low(bfc_ch_t *ch, int min_occ, int min_occ_high)
-{
-	int i;
-	for (i = 0; i < 1<<ch->l_pre; ++i) {
-		khint_t k;
-		cnthash_t *h = ch->h[i];
-		for (k = 0; k != kh_end(h); ++k)
-			if (kh_exist(h, k) && ((kh_key(h, k) & 0xff) < min_occ || (kh_key(h, k)>>8 & 0x3f) < min_occ_high))
-				kh_del(cnt, h, k);
-	}
-}
-
 int bfc_ch_hist(const bfc_ch_t *ch, uint64_t cnt[256], uint64_t high[64])
 {
 	int i, max_i = -1;

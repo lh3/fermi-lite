@@ -10,9 +10,9 @@ extern "C" {
 #endif
 
 void kt_for(int n_threads, void (*func)(void*,long,int), void *data, long n);
-void bfc_opt_init(bfc_opt_t *opt);
 void seq_reverse(int l, unsigned char *s);
 void seq_revcomp6(int l, unsigned char *s);
+struct bfc_ch_s *fml_count(int n, const bseq1_t *seq, int k, int q, int l_pre, int n_threads);
 
 #ifdef __cplusplus
 }

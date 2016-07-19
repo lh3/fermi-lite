@@ -8,18 +8,6 @@ typedef struct {
 	char *name, *seq, *qual;
 } bseq1_t;
 
-typedef struct {
-	int n_threads, q, k, l_pre;
-	int min_cov; // a k-mer is considered solid if the count is no less than this
-
-	int max_end_ext;
-	int win_multi_ec;
-
-	// these ec options cannot be changed on the command line
-	int w_ec, w_ec_high, w_absent, w_absent_high;
-	int max_path_diff, max_heap;
-} bfc_opt_t;
-
 #define MAG_F_READ_ORI   0x1
 #define MAG_F_READ_TAG   0x2
 #define MAG_F_CLEAN      0x10
@@ -33,8 +21,9 @@ typedef struct {
 } magopt_t;
 
 typedef struct {
-	int n_threads, min_match, min_merge_len;
-	bfc_opt_t bfc_opt;
+	int n_threads;
+	int ec_k;
+	int min_ovlp, min_merge_len;
 	magopt_t mag_opt;
 } fml_opt_t;
 
@@ -66,10 +55,12 @@ extern "C" {
  */
 void fml_opt_init(fml_opt_t *opt);
 
-void fml_opt_set_ec_k(fml_opt_t *opt, int k);
+void fml_opt_adjust(fml_opt_t *opt, int n_seqs, const bseq1_t *seqs);
+
 void fml_opt_set_min_ovlp(fml_opt_t *opt, int min_ovlp);
-void fml_opt_set_clean_ovlp(fml_opt_t *opt, int min_ovlp, float min_drop_ratio);
 void fml_opt_set_merge_ovlp(fml_opt_t *opt, int min_merge_ovlp);
+
+void fml_opt_analyze(int n_seqs, const bseq1_t *seqs, int n_threads);
 
 /**
  * Assemble a list of sequences
