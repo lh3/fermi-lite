@@ -42,7 +42,7 @@ The `fml_assemble()` output is in fact a graph. You may have a look at the
 ## Limitations
 
 1. Fermi-lite can assemble bacterial genomes. It is fairly fast on multiple
-   threads. The continguity and accuracy is expected to be similar to the older
+   threads. The continguity and accuracy is expected to be similar to older
    assemblers, but may not compete with more recent mainstream assemblers.
 
 2. Fermi-lite does not work with genomes more than tens of megabases. It would

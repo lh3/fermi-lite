@@ -32,6 +32,7 @@ void fml_opt_init(fml_opt_t *opt)
 {
 	opt->n_threads = 1;
 	opt->ec_k = 0;
+	opt->ec_min_cov = 4;
 	opt->min_asm_ovlp = 33;
 	opt->min_merge_len = 0;
 	mag_init_opt(&opt->mag_opt);

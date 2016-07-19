@@ -1,7 +1,7 @@
 #ifndef FML_H
 #define FML_H
 
-#define FML_VERSION "r27"
+#define FML_VERSION "r33"
 
 #include <stdint.h>
 
@@ -25,6 +25,7 @@ typedef struct {
 typedef struct {
 	int n_threads;     // number of threads; don't use multi-threading for small data sets
 	int ec_k;          // k-mer length for error correction; 0 for auto estimate
+	int ec_min_cov;    // threshold for a solid k-mer in ec
 	int min_asm_ovlp;  // min overlap length during assembly
 	int min_merge_len; // during assembly, don't explicitly merge an overlap if shorter than this value
 	magopt_t mag_opt;  // graph cleaning options
@@ -41,7 +42,7 @@ typedef struct {
 typedef struct {
 	int32_t len;      // length of sequence
 	int32_t nsr;      // number of supporting reads
-	char *seq;        // unitig sequence; "ACGTN"[seq[i]-1] gives a printable base
+	char *seq;        // unitig sequence
 	char *cov;        // cov[i]-33 gives per-base coverage at i
 	int n_ovlp[2];    // number of 5'-end [0] and 3'-end [1] overlaps
 	fml_ovlp_t *ovlp; // overlaps, of size n_ovlp[0]+n_ovlp[1]

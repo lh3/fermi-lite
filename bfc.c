@@ -592,7 +592,7 @@ void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq)
 
 	// initialize BFC options
 	bfc_opt_init(&bfc_opt);
-	bfc_opt.n_threads = opt->n_threads, bfc_opt.k = opt->ec_k; // copy from FML options
+	bfc_opt.n_threads = opt->n_threads, bfc_opt.k = opt->ec_k, bfc_opt.min_cov = opt->ec_min_cov; // copy from FML options
 	for (i = 0; i < n; ++i) tot_len += seq[i].l_seq; // compute total length
 	bfc_opt.l_pre = tot_len - 8 < 20? tot_len - 8 : 20;
 
