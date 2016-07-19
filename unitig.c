@@ -449,7 +449,7 @@ mag_t *fml_fmi2mag_core(const rld_t *e, int min_match, int min_merge_len, int n_
 mag_t *fml_fmi2mag(const fml_opt_t *opt, rld_t *e)
 {
 	mag_t *g;
-	g = fml_fmi2mag_core(e, opt->min_ovlp, opt->min_merge_len, opt->n_threads);
+	g = fml_fmi2mag_core(e, opt->min_asm_ovlp, opt->min_merge_len, opt->n_threads);
 	rld_destroy(e);
 	return g;
 }

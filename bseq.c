@@ -27,7 +27,6 @@ bseq1_t *bseq_read(const char *fn, int *n_)
 			seqs = realloc(seqs, m * sizeof(bseq1_t));
 		}
 		s = &seqs[n];
-		s->name = strdup(ks->name.s);
 		s->seq = strdup(ks->seq.s);
 		s->qual = ks->qual.l? strdup(ks->qual.s) : 0;
 		s->l_seq = ks->seq.l;

@@ -32,7 +32,7 @@ void fml_opt_init(fml_opt_t *opt)
 {
 	opt->n_threads = 1;
 	opt->ec_k = 0;
-	opt->min_ovlp = 33;
+	opt->min_asm_ovlp = 33;
 	opt->min_merge_len = 0;
 	mag_init_opt(&opt->mag_opt);
 	opt->mag_opt.flag = MAG_F_CLEAN | MAG_F_NO_SIMPL;
@@ -49,16 +49,6 @@ void fml_opt_adjust(fml_opt_t *opt, int n_seqs, const bseq1_t *seqs)
 	if (opt->ec_k == 0) opt->ec_k = (log_len + 12) / 2;
 	if (opt->ec_k%2 == 0) ++opt->ec_k;
 	opt->mag_opt.min_elen = (int)((double)tot_len / n_seqs * 2.5 + .499);
-}
-
-void fml_opt_set_min_ovlp(fml_opt_t *opt, int min_ovlp)
-{
-	opt->min_ovlp = min_ovlp;
-}
-
-void fml_opt_set_merge_ovlp(fml_opt_t *opt, int min_merge_ovlp)
-{
-	opt->min_merge_len = opt->mag_opt.min_merge_len = min_merge_ovlp;
 }
 
 static inline int is_rev_same(int l, const char *s)
@@ -84,7 +74,7 @@ struct rld_t *fml_fmi_gen(int n, bseq1_t *seq, int is_mt)
 	for (k = 0; k < n; ++k) {
 		int i;
 		bseq1_t *s = &seq[k];
-		free(s->qual); free(s->name);
+		free(s->qual);
 		for (i = 0; i < s->l_seq; ++i)
 			s->seq[i] = seq_nt6_table[(int)s->seq[i]];
 		for (i = 0; i < s->l_seq; ++i)
@@ -182,6 +172,9 @@ fml_utg_t *fml_mag2utg(struct mag_t *g, int *n)
 		q = &utg[j++];
 		q->len = p->len, q->nsr = p->nsr;
 		q->seq = p->seq, q->cov = p->cov;
+		for (a = 0; a < q->len; ++a)
+			q->seq[a] = "$ACGTN"[(int)q->seq[a]];
+		q->seq[q->len] = q->cov[q->len] = 0;
 		for (from = 0; from < 2; ++from) {
 			ku128_v *r = &p->nei[from];
 			for (b = q->n_ovlp[from] = 0; b < r->n; ++b)
@@ -234,8 +227,6 @@ void fml_utg_print(int n, const fml_utg_t *utg)
 		kputc('\n', &out);
 		l = out.l;
 		kputsn(u->seq, u->len, &out);
-		for (j = l; j < out.l; ++j)
-			out.s[j] = "ACGTN"[(int)out.s[j] - 1];
 		kputsn("\n+\n", 3, &out);
 		kputsn(u->cov, u->len, &out);
 		kputc('\n', &out);

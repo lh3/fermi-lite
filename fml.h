@@ -1,13 +1,13 @@
 #ifndef FML_H
 #define FML_H
 
-#define FML_VERSION "r25"
+#define FML_VERSION "r27"
 
 #include <stdint.h>
 
 typedef struct {
-	int l_seq;
-	char *name, *seq, *qual;
+	int32_t l_seq;
+	char *seq, *qual;
 } bseq1_t;
 
 #define MAG_F_READ_ORI   0x1
@@ -23,10 +23,11 @@ typedef struct {
 } magopt_t;
 
 typedef struct {
-	int n_threads;
-	int ec_k;
-	int min_ovlp, min_merge_len;
-	magopt_t mag_opt;
+	int n_threads;     // number of threads; don't use multi-threading for small data sets
+	int ec_k;          // k-mer length for error correction; 0 for auto estimate
+	int min_asm_ovlp;  // min overlap length during assembly
+	int min_merge_len; // during assembly, don't explicitly merge an overlap if shorter than this value
+	magopt_t mag_opt;  // graph cleaning options
 } fml_opt_t;
 
 struct rld_t;
@@ -40,8 +41,8 @@ typedef struct {
 typedef struct {
 	int32_t len;      // length of sequence
 	int32_t nsr;      // number of supporting reads
-	char *seq;        // unitig sequence, in the nt6 encoding
-	char *cov;        // per-base coverage
+	char *seq;        // unitig sequence; "ACGTN"[seq[i]-1] gives a printable base
+	char *cov;        // cov[i]-33 gives per-base coverage at i
 	int n_ovlp[2];    // number of 5'-end [0] and 3'-end [1] overlaps
 	fml_ovlp_t *ovlp; // overlaps, of size n_ovlp[0]+n_ovlp[1]
 } fml_utg_t;
@@ -50,19 +51,26 @@ typedef struct {
 extern "C" {
 #endif
 
+/************************
+ * High-level functions *
+ ************************/
+
+/**
+ * Read all sequences from a FASTA/FASTQ file
+ *
+ * @param fn       filename; NULL or "-" for stdin
+ * @param n        (out) number of sequences read into RAM
+ *
+ * @return array of sequences
+ */
+bseq1_t *bseq_read(const char *fn, int *n);
+
 /**
  * Initialize default parameters
  *
  * @param opt      (out) pointer to parameters
  */
 void fml_opt_init(fml_opt_t *opt);
-
-void fml_opt_adjust(fml_opt_t *opt, int n_seqs, const bseq1_t *seqs);
-
-void fml_opt_set_min_ovlp(fml_opt_t *opt, int min_ovlp);
-void fml_opt_set_merge_ovlp(fml_opt_t *opt, int min_merge_ovlp);
-
-void fml_opt_analyze(int n_seqs, const bseq1_t *seqs, int n_threads);
 
 /**
  * Assemble a list of sequences
@@ -72,7 +80,7 @@ void fml_opt_analyze(int n_seqs, const bseq1_t *seqs, int n_threads);
  * @param seqs     sequences to assemble; FREED on return
  * @param n_utg    (out) number of unitigs in return
  *
- * @return list of unitigs
+ * @return array of unitigs
  */
 fml_utg_t *fml_assemble(const fml_opt_t *opt, int n_seqs, bseq1_t *seqs, int *n_utg);
 
@@ -80,26 +88,29 @@ fml_utg_t *fml_assemble(const fml_opt_t *opt, int n_seqs, bseq1_t *seqs, int *n_
  * Free unitigs
  *
  * @param n_utg    number of unitigs
- * @param utg      list of unitigs
+ * @param utg      array of unitigs
  */
 void fml_utg_destroy(int n_utg, fml_utg_t *utg);
 
+/************************************************
+ * Mid-level functions called by fml_assemble() *
+ ************************************************/
+
 /**
- * Read all sequences from FASTA/FASTQ
+ * Adjust parameters based on input sequences
  *
- * @param fn       filename; NULL or "-" for stdin
- * @param n        (out) number of sequences read into RAM
- *
- * @return list of sequences
+ * @param opt       parameters to update IN PLACE
+ * @param n_seqs    number of sequences
+ * @param seqs      array of sequences
  */
-bseq1_t *bseq_read(const char *fn, int *n);
+void fml_opt_adjust(fml_opt_t *opt, int n_seqs, const bseq1_t *seqs);
 
 /**
  * Error correction
  *
  * @param opt       parameters
  * @param n         number of sequences
- * @param seq       sequences; corrected IN PLACE
+ * @param seq       array of sequences; corrected IN PLACE
  */
 void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq);
 
@@ -108,7 +119,7 @@ void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq);
  *
  * @param opt       parameters
  * @param n         number of sequences
- * @param seq       sequences; FREED on return
+ * @param seq       array of sequences; FREED on return
  *
  * @return FMD-index
  */
@@ -138,12 +149,30 @@ void fml_mag_clean(const fml_opt_t *opt, struct mag_t *g);
  * @param g         graph in the "mag" structure; FREED on return
  * @param n_utg     (out) number of unitigs
  *
- * @return list of unitigs
+ * @return array of unitigs
  */
 fml_utg_t *fml_mag2utg(struct mag_t *g, int *n_utg);
 
-void fml_utg_print(int n, const fml_utg_t *utg);
+/**
+ * Output unitig graph in the mag format
+ *
+ * @param n_utg     number of unitigs
+ * @param utg       array of unitigs
+ */
+void fml_utg_print(int n_utgs, const fml_utg_t *utg);
+
+/**
+ * Deallocate an FM-index
+ *
+ * @param e         pointer to the FM-index
+ */
 void fml_fmi_destroy(struct rld_t *e);
+
+/**
+ * Deallocate a mag graph
+ *
+ * @param g         pointer to the mag graph
+ */
 void fml_mag_destroy(struct mag_t *g);
 
 #ifdef __cplusplus
