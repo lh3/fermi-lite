@@ -430,7 +430,7 @@ mag_t *fml_fmi2mag_core(const rld_t *e, int min_match, int min_merge_len, int n_
 	kt_for(n_threads, worker, &w, e->mcnt[1]);
 	g = (mag_t*)calloc(1, sizeof(mag_t));
 	for (j = 0; j < n_threads; ++j) {
-		kv_resize(magv_t, g->v, w.d[j].v.n);
+		kv_resize(magv_t, g->v, g->v.n + w.d[j].v.n);
 		memcpy(g->v.a + g->v.n, w.d[j].v.a, w.d[j].v.n * sizeof(magv_t));
 		g->v.n += w.d[j].v.n;
 		free(w.d[j].v.a);
