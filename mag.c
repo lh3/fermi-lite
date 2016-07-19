@@ -560,7 +560,6 @@ void mag_g_clean(mag_t *g, const magopt_t *opt)
 {
 	int j;
 
-	if ((opt->flag & MAG_F_CLEAN) == 0) return;
 	if (g->min_ovlp < opt->min_ovlp) g->min_ovlp = opt->min_ovlp;
 	for (j = 2; j <= opt->min_ensr; ++j)
 		mag_g_rm_vext(g, opt->min_elen, j);

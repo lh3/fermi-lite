@@ -1,7 +1,7 @@
 #ifndef FML_H
 #define FML_H
 
-#define FML_VERSION "r36"
+#define FML_VERSION "r39"
 
 #include <stdint.h>
 
@@ -10,11 +10,7 @@ typedef struct {
 	char *seq, *qual;
 } bseq1_t;
 
-#define MAG_F_READ_ORI   0x1
-#define MAG_F_READ_TAG   0x2
-#define MAG_F_CLEAN      0x10
 #define MAG_F_AGGRESSIVE 0x20
-#define MAG_F_NO_AMEND   0x40
 #define MAG_F_NO_SIMPL   0x80
 
 typedef struct {
