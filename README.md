@@ -18,7 +18,7 @@ For now, see [example.c][example] for the basic use of the library. Here is a
 sketch of the example:
 ```cpp
 #include <stdio.h>
-#include "fml.h"
+#include "fml.h"                        // only one header file required
 
 int main(int argc, char *argv[])
 {
@@ -26,11 +26,11 @@ int main(int argc, char *argv[])
 	bseq1_t *seqs;
 	fml_utg_t *utgs;
 	fml_opt_t opt;
-	if (argc == 1) return 1;     // do nothing if there is no input file
+	if (argc == 1) return 1;            // do nothing if there is no input file
 	seqs = bseq_read(argv[1], &n_seqs); // or fill the array with callers' functions
-	fml_opt_init(&opt);          // initialize parameters
+	fml_opt_init(&opt);                 // initialize parameters
 	utgs = fml_assemble(&opt, n_seqs, seqs, &n_utgs); // assemble!
-	for (i = 0; i < n_utgs; ++i) // output in fasta
+	for (i = 0; i < n_utgs; ++i)        // output in fasta
 		printf(">%d\n%s\n", i+1, utgs[i].seq);
 	fml_utg_destroy(n_utgs, utgs);
 	return 0;
