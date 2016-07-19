@@ -17,7 +17,7 @@ projects.
 For now, see [example.c][example] for the basic use of the library. Here is a
 sketch of the example:
 ```cpp
-#include <stdio.h>
+#include <stdio.h>                      // for printf()
 #include "fml.h"                        // only one header file required
 
 int main(int argc, char *argv[])
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 	utgs = fml_assemble(&opt, n_seqs, seqs, &n_utgs); // assemble!
 	for (i = 0; i < n_utgs; ++i)        // output in fasta
 		printf(">%d\n%s\n", i+1, utgs[i].seq);
-	fml_utg_destroy(n_utgs, utgs);
+	fml_utg_destroy(n_utgs, utgs);      // deallocate unitigs
 	return 0;
 }
 ```
