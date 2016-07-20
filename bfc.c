@@ -138,6 +138,8 @@ struct bfc_ch_s *fml_count(int n, const bseq1_t *seq, int k, int q, int l_pre, i
 #define BFC_EC_HIST 5
 #define BFC_EC_HIST_HIGH 2
 
+#define BFC_EC_MIN_COV_COEF .1
+
 /**************************
  * Sequence struct for ec *
  **************************/
@@ -622,18 +624,19 @@ static void worker_ec(void *_data, long k, int tid)
 	} else bfc_ec1(es->e[tid], s->seq, s->qual);
 }
 
-void fml_correct_core(const fml_opt_t *opt, int flt_uniq, int n, bseq1_t *seq)
+float fml_correct_core(const fml_opt_t *opt, int flt_uniq, int n, bseq1_t *seq)
 {
 	bfc_ch_t *ch;
 	int i, mode;
-	uint64_t hist[256], hist_high[64], tot_len = 0;
+	uint64_t hist[256], hist_high[64], tot_len = 0, sum_k = 0, tot_k = 0;
 	ec_step_t es;
 	bfc_opt_t bfc_opt;
+	float kcov;
 
 	// initialize BFC options
 	bfc_opt_init(&bfc_opt);
-	bfc_opt.n_threads = opt->n_threads, bfc_opt.min_cov = opt->ec_min_cov; // copy from FML options
-	bfc_opt.k = flt_uniq? opt->ec_trim_k : opt->ec_k;
+	bfc_opt.n_threads = opt->n_threads; // copy from FML options
+	bfc_opt.k = flt_uniq? opt->min_asm_ovlp : opt->ec_k;
 	for (i = 0; i < n; ++i) tot_len += seq[i].l_seq; // compute total length
 	bfc_opt.l_pre = tot_len - 8 < 20? tot_len - 8 : 20;
 
@@ -642,6 +645,12 @@ void fml_correct_core(const fml_opt_t *opt, int flt_uniq, int n, bseq1_t *seq)
 
 	es.ch = ch = fml_count(n, seq, bfc_opt.k, bfc_opt.q, bfc_opt.l_pre, bfc_opt.n_threads);
 	mode = bfc_ch_hist(ch, hist, hist_high);
+	for (i = opt->min_cnt; i < 256; ++i)
+		sum_k += hist[i], tot_k += i * hist[i];
+	kcov = (float)tot_k / sum_k;
+	bfc_opt.min_cov = (int)(BFC_EC_MIN_COV_COEF * kcov + .499);
+	bfc_opt.min_cov = bfc_opt.min_cov < opt->max_cnt? bfc_opt.min_cov : opt->max_cnt;
+	bfc_opt.min_cov = bfc_opt.min_cov > opt->min_cnt? bfc_opt.min_cov : opt->min_cnt;
 
 	es.e = calloc(es.opt->n_threads, sizeof(void*));
 	for (i = 0; i < es.opt->n_threads; ++i)
@@ -651,14 +660,15 @@ void fml_correct_core(const fml_opt_t *opt, int flt_uniq, int n, bseq1_t *seq)
 		ec1buf_destroy(es.e[i]);
 	free(es.e);
 	bfc_ch_destroy(ch);
+	return kcov;
 }
 
-void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq)
+float fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq)
 {
-	fml_correct_core(opt, 0, n, seq);
+	return fml_correct_core(opt, 0, n, seq);
 }
 
-void fml_fltuniq(const fml_opt_t *opt, int n, bseq1_t *seq)
+float fml_fltuniq(const fml_opt_t *opt, int n, bseq1_t *seq)
 {
-	fml_correct_core(opt, 1, n, seq);
+	return fml_correct_core(opt, 1, n, seq);
 }

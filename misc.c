@@ -32,8 +32,8 @@ void fml_opt_init(fml_opt_t *opt)
 {
 	opt->n_threads = 1;
 	opt->ec_k = 0;
-	opt->ec_min_cov = 4;
-	opt->ec_trim_k = 33;
+	opt->min_cnt = 4;
+	opt->max_cnt = 8;
 	opt->min_asm_ovlp = 33;
 	opt->min_merge_len = 0;
 	mag_init_opt(&opt->mag_opt);
@@ -249,18 +249,25 @@ void fml_utg_destroy(int n, fml_utg_t *utg)
 	free(utg);
 }
 
+#define MAG_MIN_NSR_COEF .1
+
 fml_utg_t *fml_assemble(const fml_opt_t *opt0, int n_seqs, bseq1_t *seqs, int *n_utg)
 {
 	rld_t *e;
 	mag_t *g;
 	fml_utg_t *utg;
 	fml_opt_t opt = *opt0;
+	float kcov;
 
 	fml_opt_adjust(&opt, n_seqs, seqs);
 	if (opt.ec_k >= 0) fml_correct(&opt, n_seqs, seqs);
-	if (opt.ec_trim_k > 0) fml_fltuniq(&opt, n_seqs, seqs);
+	kcov = fml_fltuniq(&opt, n_seqs, seqs);
 	e = fml_seq2fmi(&opt, n_seqs, seqs);
 	g = fml_fmi2mag(&opt, e);
+	opt.mag_opt.min_ensr = opt.mag_opt.min_ensr > kcov * MAG_MIN_NSR_COEF? opt.mag_opt.min_ensr : (int)(kcov * MAG_MIN_NSR_COEF + .499);
+	opt.mag_opt.min_ensr = opt.mag_opt.min_ensr < opt0->max_cnt? opt.mag_opt.min_ensr : opt0->max_cnt;
+	opt.mag_opt.min_ensr = opt.mag_opt.min_ensr > opt0->min_cnt? opt.mag_opt.min_ensr : opt0->min_cnt;
+	opt.mag_opt.min_insr = opt.mag_opt.min_ensr - 1;
 	fml_mag_clean(&opt, g);
 	utg = fml_mag2utg(g, n_utg);
 	return utg;

@@ -1,7 +1,7 @@
 #ifndef FML_H
 #define FML_H
 
-#define FML_VERSION "r40"
+#define FML_VERSION "r41"
 
 #include <stdint.h>
 
@@ -19,13 +19,12 @@ typedef struct {
 } magopt_t;
 
 typedef struct {
-	int n_threads;     // number of threads; don't use multi-threading for small data sets
-	int ec_k;          // k-mer length for error correction; 0 for auto estimate
-	int ec_min_cov;    // threshold for a solid k-mer in ec
-	int ec_trim_k;
-	int min_asm_ovlp;  // min overlap length during assembly
-	int min_merge_len; // during assembly, don't explicitly merge an overlap if shorter than this value
-	magopt_t mag_opt;  // graph cleaning options
+	int n_threads;        // number of threads; don't use multi-threading for small data sets
+	int ec_k;             // k-mer length for error correction; 0 for auto estimate
+	int min_cnt, max_cnt; // both occ threshold in ec and tip threshold in cleaning lie in [min_cnt,max_cnt]
+	int min_asm_ovlp;     // min overlap length during assembly
+	int min_merge_len;    // during assembly, don't explicitly merge an overlap if shorter than this value
+	magopt_t mag_opt;     // graph cleaning options
 } fml_opt_t;
 
 struct rld_t;
@@ -109,9 +108,11 @@ void fml_opt_adjust(fml_opt_t *opt, int n_seqs, const bseq1_t *seqs);
  * @param opt       parameters
  * @param n         number of sequences
  * @param seq       array of sequences; corrected IN PLACE
+ *
+ * @return k-mer coverage
  */
-void fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq);
-void fml_fltuniq(const fml_opt_t *opt, int n, bseq1_t *seq);
+float fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq);
+float fml_fltuniq(const fml_opt_t *opt, int n, bseq1_t *seq);
 
 /**
  * Construct FMD-index

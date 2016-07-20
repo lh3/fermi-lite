@@ -11,25 +11,27 @@ int main(int argc, char *argv[])
 	fml_utg_t *utg;
 
 	fml_opt_init(&opt);
-	while ((c = getopt(argc, argv, "Ae:l:r:t:c:u:")) >= 0) {
+	while ((c = getopt(argc, argv, "Ae:l:r:t:c:")) >= 0) {
 		if (c == 'e') opt.ec_k = atoi(optarg);
-		else if (c == 'u') opt.ec_trim_k = atoi(optarg);
-		else if (c == 'c') opt.ec_min_cov = atoi(optarg);
 		else if (c == 'l') opt.min_asm_ovlp = atoi(optarg);
 		else if (c == 'r') opt.mag_opt.min_dratio1 = atof(optarg);
 		else if (c == 'A') opt.mag_opt.flag |= MAG_F_AGGRESSIVE;
 		else if (c == 't') opt.n_threads = atoi(optarg);
+		else if (c == 'c') {
+			char *p;
+			opt.min_cnt = strtol(optarg, &p, 10);
+			if (*p == ',') opt.max_cnt = strtol(p + 1, &p, 10);
+		}
 	}
 	if (argc == optind) {
 		fprintf(stderr, "Usage: fml-asm [options] <in.fq>\n");
 		fprintf(stderr, "Options:\n");
-		fprintf(stderr, "  -e INT     k-mer length for error correction (0 for auto; -1 to disable) [%d]\n", opt.ec_k);
-		fprintf(stderr, "  -c INT     min occurrence for a k-mer to be considered solid in ec [%d]\n", opt.ec_min_cov);
-		fprintf(stderr, "  -u INT     drop corrected reads containing unique INT-mers (non-positive to skip) [%d]\n", opt.ec_trim_k);
-		fprintf(stderr, "  -l INT     min overlap length [%d]\n", opt.min_asm_ovlp);
-		fprintf(stderr, "  -r FLOAT   drop shorter overlaps [%g]\n", opt.mag_opt.min_dratio1);
-		fprintf(stderr, "  -t INT     number of threads (don't use for small data sets) [%d]\n", opt.n_threads);
-		fprintf(stderr, "  -A         discard heterozygotes\n");
+		fprintf(stderr, "  -e INT          k-mer length for error correction (0 for auto; -1 to disable) [%d]\n", opt.ec_k);
+		fprintf(stderr, "  -c INT1[,INT2]  range of k-mer & read count thresholds for ec and graph cleaning [%d,%d]\n", opt.min_cnt, opt.max_cnt);
+		fprintf(stderr, "  -l INT          min overlap length during initial assembly [%d]\n", opt.min_asm_ovlp);
+		fprintf(stderr, "  -r FLOAT        drop an overlap if its length is below maxOvlpLen*FLOAT [%g]\n", opt.mag_opt.min_dratio1);
+		fprintf(stderr, "  -t INT          number of threads (don't use multi-threading for small data sets) [%d]\n", opt.n_threads);
+		fprintf(stderr, "  -A              collapse all bubbles (i.e. discard heterozygotes)\n");
 		return 1;
 	}
 	seqs = bseq_read(argv[optind], &n_seqs);
