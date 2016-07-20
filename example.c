@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "  -l INT          min overlap length during initial assembly [%d]\n", opt.min_asm_ovlp);
 		fprintf(stderr, "  -r FLOAT        drop an overlap if its length is below maxOvlpLen*FLOAT [%g]\n", opt.mag_opt.min_dratio1);
 		fprintf(stderr, "  -t INT          number of threads (don't use multi-threading for small data sets) [%d]\n", opt.n_threads);
-		fprintf(stderr, "  -A              collapse all bubbles (i.e. discard heterozygotes)\n");
+		fprintf(stderr, "  -A              discard heterozygotes (apply this to assemble bacterial genomes)\n");
 		return 1;
 	}
 	seqs = bseq_read(argv[optind], &n_seqs);
