@@ -16,7 +16,7 @@ generating any intermediate files. It inherits the performance, the relatively
 small memory footprint and the features of fermikit. In particular, fermi-lite
 is able to retain heterozygous events and thus can be used to assemble diploid
 regions for the purpose of variant calling. It is one of the limited choices
-for local re-assembly and arguably the easier to interface.
+for local re-assembly and arguably the easiest to interface.
 
 ## Usage
 
@@ -48,11 +48,11 @@ The direct assembly output is in fact a graph. You may have a look at the
 ## Overview of the Assembly Algorithm
 
 Fermi-lite is an overlap-based assembler. Given a set of input reads, it counts
-*k*-mers, estimates the *k*-mer coverage, sets a threshold on k-mer occurrences
-to determine solid *k*-mers and then use them correct sequencing errors ([Li,
-2015][bfc-paper]). After error correction, fermi-lite trims a read at an *l*-mer
-unique to the read. It then constructs an FM-index for trimmed reads ([Li,
-2014][rb2-paper]) and builds a transitively reduced overlap graph from the
+*k*-mers, estimates the *k*-mer coverage, sets a threshold on *k*-mer
+occurrences to determine solid *k*-mers and then use them correct sequencing
+errors ([Li, 2015][bfc-paper]). After error correction, fermi-lite trims a read
+at an *l*-mer unique to the read. It then constructs an FM-index for trimmed
+reads ([Li, 2014][rb2-paper]) and builds a transitively reduced overlap graph from the
 FM-index ([Simpson and Durbin, 2010][sga-paper]; [Li, 2012][fm1-paper]),
 requiring at least *l*-bp overlaps. In this graph, fermi-lite trims tips and
 pops bubbles caused by uncorrected errors. If a sequence in the graph has
