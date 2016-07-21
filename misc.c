@@ -245,7 +245,7 @@ void fml_utg_print_gfa(int n, const fml_utg_t *utg, int no_seq)
 	fputs("H\tVN:Z:1.0\n", fp);
 	for (i = 0; i < n; ++i) {
 		const fml_utg_t *u = &utg[i];
-		fprintf(fp, "S\t%d:%d\t", i<<1|0, i<<1|1);
+		fprintf(fp, "S\t%d\t", i);
 		if (!no_seq) {
 			fputs(u->seq, fp);
 			fprintf(fp, "\tLN:i:%d\tRC:i:%d\tPD:Z:", u->len, u->nsr);
@@ -255,7 +255,7 @@ void fml_utg_print_gfa(int n, const fml_utg_t *utg, int no_seq)
 		for (j = 0; j < u->n_ovlp[0] + u->n_ovlp[1]; ++j) {
 			fml_ovlp_t *o = &u->ovlp[j];
 			if (i < o->tid>>1)
-				fprintf(fp, "L\t%d:%d\t%c\t%d:%d\t%c\t%dM\n", i<<1|0, i<<1|1, "+-"[!o->from], o->tid>>1<<1|0, o->tid>>1<<1|1, "+-"[o->tid&1], o->len);
+				fprintf(fp, "L\t%d\t%c\t%d\t%c\t%dM\n", i, "+-"[!o->from], o->tid>>1, "+-"[o->tid&1], o->len);
 		}
 	}
 }

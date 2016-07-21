@@ -1,7 +1,7 @@
 #ifndef FML_H
 #define FML_H
 
-#define FML_VERSION "r45"
+#define FML_VERSION "r48"
 
 #include <stdint.h>
 
