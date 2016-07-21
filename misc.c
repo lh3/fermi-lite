@@ -239,7 +239,7 @@ void fml_utg_print(int n, const fml_utg_t *utg)
 	free(out.s);
 }
 
-void fml_utg_print_gfa(int n, const fml_utg_t *utg, int no_seq)
+void fml_utg_print_gfa(int n, const fml_utg_t *utg)
 {
 	int i, j;
 	FILE *fp = stdout;
@@ -247,11 +247,9 @@ void fml_utg_print_gfa(int n, const fml_utg_t *utg, int no_seq)
 	for (i = 0; i < n; ++i) {
 		const fml_utg_t *u = &utg[i];
 		fprintf(fp, "S\t%d\t", i);
-		if (!no_seq) {
-			fputs(u->seq, fp);
-			fprintf(fp, "\tLN:i:%d\tRC:i:%d\tPD:Z:", u->len, u->nsr);
-			fputs(u->cov, fp);
-		} else fprintf(fp, "*\tLN:i:%d\tRC:i:%d", u->len, u->nsr);
+		fputs(u->seq, fp);
+		fprintf(fp, "\tLN:i:%d\tRC:i:%d\tPD:Z:", u->len, u->nsr);
+		fputs(u->cov, fp);
 		fputc('\n', fp);
 		for (j = 0; j < u->n_ovlp[0] + u->n_ovlp[1]; ++j) {
 			fml_ovlp_t *o = &u->ovlp[j];

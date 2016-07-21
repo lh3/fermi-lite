@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	seqs = bseq_read(argv[optind], &n_seqs);
 	utg = fml_assemble(&opt, n_seqs, seqs, &n_utg);
 	if (!gfa_out) fml_utg_print(n_utg, utg);
-	else fml_utg_print_gfa(n_utg, utg, 0);
+	else fml_utg_print_gfa(n_utg, utg);
 	fml_utg_destroy(n_utg, utg);
 	return 0;
 }

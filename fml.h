@@ -1,17 +1,17 @@
 #ifndef FML_H
 #define FML_H
 
-#define FML_VERSION "r49"
+#define FML_VERSION "r50"
 
 #include <stdint.h>
 
 typedef struct {
 	int32_t l_seq;
-	char *seq, *qual;
+	char *seq, *qual; // NULL-terminated strings; length expected to match $l_seq
 } bseq1_t;
 
-#define MAG_F_AGGRESSIVE 0x20
-#define MAG_F_NO_SIMPL   0x80
+#define MAG_F_AGGRESSIVE 0x20 // pop variant bubbles (not default)
+#define MAG_F_NO_SIMPL   0x80 // skip bubble simplification (default)
 
 typedef struct {
 	int flag, min_ovlp, min_elen, min_ensr, min_insr, max_bdist, max_bvtx, min_merge_len, trim_len, trim_depth;
@@ -32,7 +32,7 @@ struct mag_t;
 
 typedef struct {
 	uint32_t len:31, from:1; // $from and $to: 0 meaning overlapping 5'-end; 1 overlapping 3'-end
-	uint32_t id:31, to:1;
+	uint32_t id:31, to:1;    // $id: unitig number
 } fml_ovlp_t;
 
 typedef struct {
@@ -160,7 +160,14 @@ fml_utg_t *fml_mag2utg(struct mag_t *g, int *n_utg);
  * @param utg       array of unitigs
  */
 void fml_utg_print(int n_utgs, const fml_utg_t *utg);
-void fml_utg_print_gfa(int n, const fml_utg_t *utg, int no_seq);
+
+/**
+ * Output unitig graph in the GFA format
+ *
+ * @param n_utg     number of unitigs
+ * @param utg       array of unitigs
+ */
+void fml_utg_print_gfa(int n, const fml_utg_t *utg);
 
 /**
  * Deallocate an FM-index
