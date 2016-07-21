@@ -1,7 +1,7 @@
 #ifndef FML_H
 #define FML_H
 
-#define FML_VERSION "r41"
+#define FML_VERSION "r45"
 
 #include <stdint.h>
 
@@ -160,6 +160,7 @@ fml_utg_t *fml_mag2utg(struct mag_t *g, int *n_utg);
  * @param utg       array of unitigs
  */
 void fml_utg_print(int n_utgs, const fml_utg_t *utg);
+void fml_utg_print_gfa(int n, const fml_utg_t *utg, int no_seq);
 
 /**
  * Deallocate an FM-index

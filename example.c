@@ -6,17 +6,18 @@
 int main(int argc, char *argv[])
 {
 	fml_opt_t opt;
-	int c, n_seqs, n_utg;
+	int c, n_seqs, n_utg, gfa_out = 0;
 	bseq1_t *seqs;
 	fml_utg_t *utg;
 
 	fml_opt_init(&opt);
-	while ((c = getopt(argc, argv, "Ae:l:r:t:c:")) >= 0) {
+	while ((c = getopt(argc, argv, "gAe:l:r:t:c:")) >= 0) {
 		if (c == 'e') opt.ec_k = atoi(optarg);
 		else if (c == 'l') opt.min_asm_ovlp = atoi(optarg);
 		else if (c == 'r') opt.mag_opt.min_dratio1 = atof(optarg);
 		else if (c == 'A') opt.mag_opt.flag |= MAG_F_AGGRESSIVE;
 		else if (c == 't') opt.n_threads = atoi(optarg);
+		else if (c == 'g') gfa_out = 1;
 		else if (c == 'c') {
 			char *p;
 			opt.min_cnt = strtol(optarg, &p, 10);
@@ -32,11 +33,13 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "  -r FLOAT        drop an overlap if its length is below maxOvlpLen*FLOAT [%g]\n", opt.mag_opt.min_dratio1);
 		fprintf(stderr, "  -t INT          number of threads (don't use multi-threading for small data sets) [%d]\n", opt.n_threads);
 		fprintf(stderr, "  -A              discard heterozygotes (apply this to assemble bacterial genomes)\n");
+		fprintf(stderr, "  -o              output the assembly graph in the GFA format\n");
 		return 1;
 	}
 	seqs = bseq_read(argv[optind], &n_seqs);
 	utg = fml_assemble(&opt, n_seqs, seqs, &n_utg);
-	fml_utg_print(n_utg, utg);
+	if (!gfa_out) fml_utg_print(n_utg, utg);
+	else fml_utg_print_gfa(n_utg, utg, 0);
 	fml_utg_destroy(n_utg, utg);
 	return 0;
 }
