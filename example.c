@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "  -r FLOAT        drop an overlap if its length is below maxOvlpLen*FLOAT [%g]\n", opt.mag_opt.min_dratio1);
 		fprintf(stderr, "  -t INT          number of threads (don't use multi-threading for small data sets) [%d]\n", opt.n_threads);
 		fprintf(stderr, "  -A              discard heterozygotes (apply this to assemble bacterial genomes)\n");
-		fprintf(stderr, "  -o              output the assembly graph in the GFA format\n");
+		fprintf(stderr, "  -g              output the assembly graph in the GFA format\n");
 		return 1;
 	}
 	seqs = bseq_read(argv[optind], &n_seqs);
