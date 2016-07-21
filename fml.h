@@ -1,7 +1,7 @@
 #ifndef FML_H
 #define FML_H
 
-#define FML_VERSION "r48"
+#define FML_VERSION "r49"
 
 #include <stdint.h>
 
@@ -31,8 +31,8 @@ struct rld_t;
 struct mag_t;
 
 typedef struct {
-	uint32_t tid;
-	uint32_t len:31, from:1;
+	uint32_t len:31, from:1; // $from and $to: 0 meaning overlapping 5'-end; 1 overlapping 3'-end
+	uint32_t id:31, to:1;
 } fml_ovlp_t;
 
 typedef struct {

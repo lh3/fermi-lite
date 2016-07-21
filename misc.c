@@ -193,7 +193,8 @@ fml_utg_t *fml_mag2utg(struct mag_t *g, int *n)
 				t = &q->ovlp[a++];
 				k = kh_get(64, h, s->x);
 				assert(k != kh_end(h));
-				t->tid = kh_val(h, k);
+				t->id = kh_val(h, k) >> 1;
+				t->to = kh_val(h, k) & 1;
 				t->len = s->y;
 				t->from = from;
 			}
@@ -217,13 +218,13 @@ void fml_utg_print(int n, const fml_utg_t *utg)
 		kputc('\t', &out); kputw(u->nsr, &out);
 		kputc('\t', &out);
 		for (j = 0; j < u->n_ovlp[0]; ++j) {
-			kputw(u->ovlp[j].tid, &out); kputc(',', &out);
+			kputw(u->ovlp[j].id<<1|u->ovlp[j].to, &out); kputc(',', &out);
 			kputw(u->ovlp[j].len, &out); kputc(';', &out);
 		}
 		if (u->n_ovlp[0] == 0) kputc('.', &out);
 		kputc('\t', &out);
 		for (; j < u->n_ovlp[0] + u->n_ovlp[1]; ++j) {
-			kputw(u->ovlp[j].tid, &out); kputc(',', &out);
+			kputw(u->ovlp[j].id<<1|u->ovlp[j].to, &out); kputc(',', &out);
 			kputw(u->ovlp[j].len, &out); kputc(';', &out);
 		}
 		if (u->n_ovlp[1] == 0) kputc('.', &out);
@@ -254,8 +255,8 @@ void fml_utg_print_gfa(int n, const fml_utg_t *utg, int no_seq)
 		fputc('\n', fp);
 		for (j = 0; j < u->n_ovlp[0] + u->n_ovlp[1]; ++j) {
 			fml_ovlp_t *o = &u->ovlp[j];
-			if (i < o->tid>>1)
-				fprintf(fp, "L\t%d\t%c\t%d\t%c\t%dM\n", i, "+-"[!o->from], o->tid>>1, "+-"[o->tid&1], o->len);
+			if (i < o->id)
+				fprintf(fp, "L\t%d\t%c\t%d\t%c\t%dM\n", i, "+-"[!o->from], o->id, "+-"[o->to], o->len);
 		}
 	}
 }
