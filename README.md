@@ -42,8 +42,9 @@ int main(int argc, char *argv[])
 	return 0;
 }
 ```
-The direct assembly output is in fact a graph. You may have a look at the
-[header file][header] for details.
+The `fml_assemble()` output is in fact a graph. You may have a look at the
+`fml_utg_print_gfa()` function in [misc.c][misc] about how to derive a
+[GFA][gfa] representation from an array of `fml_utg_t` objects.
 
 ## Overview of the Assembly Algorithm
 
@@ -86,3 +87,5 @@ after these procedure is the final output. Sequences in this graph are unitigs.
 [fk]: http://github.com/lh3/fermikit
 [example]: https://github.com/lh3/fermi-lite/blob/master/example.c
 [header]: https://github.com/lh3/fermi-lite/blob/master/fml.h
+[misc]: https://github.com/lh3/fermi-lite/blob/master/misc.c
+[gfa]: https://github.com/pmelsted/GFA-spec
