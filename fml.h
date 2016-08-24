@@ -1,7 +1,7 @@
 #ifndef FML_H
 #define FML_H
 
-#define FML_VERSION "r51"
+#define FML_VERSION "r52"
 
 #include <stdint.h>
 
@@ -11,6 +11,7 @@ typedef struct {
 } bseq1_t;
 
 #define MAG_F_AGGRESSIVE 0x20 // pop variant bubbles (not default)
+#define MAG_F_POPOPEN    0x40 // pop open bubbles (not default)
 #define MAG_F_NO_SIMPL   0x80 // skip bubble simplification (default)
 
 typedef struct {

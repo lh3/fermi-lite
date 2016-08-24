@@ -37,7 +37,7 @@ void fml_opt_init(fml_opt_t *opt)
 	opt->min_asm_ovlp = 33;
 	opt->min_merge_len = 0;
 	mag_init_opt(&opt->mag_opt);
-	opt->mag_opt.flag = MAG_F_NO_SIMPL;
+	opt->mag_opt.flag = MAG_F_NO_SIMPL | MAG_F_POPOPEN;
 }
 
 void fml_opt_adjust(fml_opt_t *opt, int n_seqs, const bseq1_t *seqs)

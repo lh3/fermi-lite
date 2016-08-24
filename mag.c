@@ -569,7 +569,7 @@ void mag_g_clean(mag_t *g, const magopt_t *opt)
 	for (j = 2; j <= opt->min_ensr; ++j)
 		mag_g_rm_vext(g, opt->min_elen, j);
 	mag_g_merge(g, 0, opt->min_merge_len);
-	if (opt->flag & MAG_F_AGGRESSIVE) mag_g_pop_open(g, opt->min_elen);
+	if ((opt->flag & MAG_F_AGGRESSIVE) || (opt->flag & MAG_F_POPOPEN)) mag_g_pop_open(g, opt->min_elen);
 	if (!(opt->flag & MAG_F_NO_SIMPL)) mag_g_simplify_bubble(g, opt->max_bvtx, opt->max_bdist);
 	mag_g_pop_simple(g, opt->max_bcov, opt->max_bfrac, opt->min_merge_len, opt->max_bdiff, opt->flag & MAG_F_AGGRESSIVE);
 	mag_g_rm_vint(g, opt->min_elen, opt->min_insr, g->min_ovlp);
@@ -577,7 +577,7 @@ void mag_g_clean(mag_t *g, const magopt_t *opt)
 	mag_g_merge(g, 1, opt->min_merge_len);
 	mag_g_rm_vext(g, opt->min_elen, opt->min_ensr);
 	mag_g_merge(g, 0, opt->min_merge_len);
-	if (opt->flag & MAG_F_AGGRESSIVE) mag_g_pop_open(g, opt->min_elen);
+	if ((opt->flag & MAG_F_AGGRESSIVE) || (opt->flag & MAG_F_POPOPEN)) mag_g_pop_open(g, opt->min_elen);
 	mag_g_rm_vext(g, opt->min_elen, opt->min_ensr);
 	mag_g_merge(g, 0, opt->min_merge_len);
 }
