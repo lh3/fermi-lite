@@ -28,7 +28,7 @@ KSORT_INIT_GENERIC(uint64_t)
 #define edge_mark_del(_x) ((_x).x = (uint64_t)-2, (_x).y = 0)
 #define edge_is_del(_x)   ((_x).x == (uint64_t)-2 || (_x).y == 0)
 
-static int fm_verbose = 1;
+int fm_verbose = 1;
 
 /*********************
  * Vector operations *
@@ -553,6 +553,7 @@ void mag_init_opt(magopt_t *o)
 	o->max_bfrac = 0.15;
 	o->max_bvtx = 64;
 	o->max_bdist = 512;
+	o->max_bdiff = 50;
 }
 
 void mag_g_clean(mag_t *g, const magopt_t *opt)
@@ -570,7 +571,7 @@ void mag_g_clean(mag_t *g, const magopt_t *opt)
 	mag_g_merge(g, 0, opt->min_merge_len);
 	if (opt->flag & MAG_F_AGGRESSIVE) mag_g_pop_open(g, opt->min_elen);
 	if (!(opt->flag & MAG_F_NO_SIMPL)) mag_g_simplify_bubble(g, opt->max_bvtx, opt->max_bdist);
-	mag_g_pop_simple(g, opt->max_bcov, opt->max_bfrac, opt->min_merge_len, opt->flag & MAG_F_AGGRESSIVE);
+	mag_g_pop_simple(g, opt->max_bcov, opt->max_bfrac, opt->min_merge_len, opt->max_bdiff, opt->flag & MAG_F_AGGRESSIVE);
 	mag_g_rm_vint(g, opt->min_elen, opt->min_insr, g->min_ovlp);
 	mag_g_rm_edge(g, g->min_ovlp, opt->min_dratio1, opt->min_elen, opt->min_ensr);
 	mag_g_merge(g, 1, opt->min_merge_len);

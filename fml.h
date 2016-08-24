@@ -1,7 +1,7 @@
 #ifndef FML_H
 #define FML_H
 
-#define FML_VERSION "r50"
+#define FML_VERSION "r51"
 
 #include <stdint.h>
 
@@ -14,7 +14,7 @@ typedef struct {
 #define MAG_F_NO_SIMPL   0x80 // skip bubble simplification (default)
 
 typedef struct {
-	int flag, min_ovlp, min_elen, min_ensr, min_insr, max_bdist, max_bvtx, min_merge_len, trim_len, trim_depth;
+	int flag, min_ovlp, min_elen, min_ensr, min_insr, max_bdist, max_bdiff, max_bvtx, min_merge_len, trim_len, trim_depth;
 	float min_dratio1, max_bcov, max_bfrac;
 } magopt_t;
 
@@ -43,6 +43,8 @@ typedef struct {
 	int n_ovlp[2];    // number of 5'-end [0] and 3'-end [1] overlaps
 	fml_ovlp_t *ovlp; // overlaps, of size n_ovlp[0]+n_ovlp[1]
 } fml_utg_t;
+
+extern int fm_verbose;
 
 #ifdef __cplusplus
 extern "C" {

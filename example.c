@@ -11,13 +11,15 @@ int main(int argc, char *argv[])
 	fml_utg_t *utg;
 
 	fml_opt_init(&opt);
-	while ((c = getopt(argc, argv, "gAe:l:r:t:c:")) >= 0) {
+	while ((c = getopt(argc, argv, "gAe:l:r:t:c:d:v:")) >= 0) {
 		if (c == 'e') opt.ec_k = atoi(optarg);
 		else if (c == 'l') opt.min_asm_ovlp = atoi(optarg);
 		else if (c == 'r') opt.mag_opt.min_dratio1 = atof(optarg);
 		else if (c == 'A') opt.mag_opt.flag |= MAG_F_AGGRESSIVE;
+		else if (c == 'd') opt.mag_opt.max_bdiff = atoi(optarg);
 		else if (c == 't') opt.n_threads = atoi(optarg);
 		else if (c == 'g') gfa_out = 1;
+		else if (c == 'v') fm_verbose = atoi(optarg);
 		else if (c == 'c') {
 			char *p;
 			opt.min_cnt = strtol(optarg, &p, 10);
@@ -32,6 +34,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "  -l INT          min overlap length during initial assembly [%d]\n", opt.min_asm_ovlp);
 		fprintf(stderr, "  -r FLOAT        drop an overlap if its length is below maxOvlpLen*FLOAT [%g]\n", opt.mag_opt.min_dratio1);
 		fprintf(stderr, "  -t INT          number of threads (don't use multi-threading for small data sets) [%d]\n", opt.n_threads);
+		fprintf(stderr, "  -d INT          retain a bubble if one side is longer than the other side by >INT-bp [%d]\n", opt.mag_opt.max_bdiff);
 		fprintf(stderr, "  -A              discard heterozygotes (apply this to assemble bacterial genomes)\n");
 		fprintf(stderr, "  -g              output the assembly graph in the GFA format\n");
 		return 1;

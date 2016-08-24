@@ -16,8 +16,6 @@ typedef khash_t(64) hash64_t;
 #define edge_mark_del(_x) ((_x).x = (uint64_t)-2, (_x).y = 0)
 #define edge_is_del(_x)   ((_x).x == (uint64_t)-2 || (_x).y == 0)
 
-static int fm_verbose = 1;
-
 /******************
  * Closed bubbles *
  ******************/
@@ -178,7 +176,7 @@ void mag_g_simplify_bubble(mag_t *g, int max_vtx, int max_dist)
 	mag_g_merge(g, 0, 0);
 }
 
-int mag_vh_pop_simple(mag_t *g, uint64_t idd, float max_cov, float max_frac, int aggressive)
+int mag_vh_pop_simple(mag_t *g, uint64_t idd, float max_cov, float max_frac, int max_bdiff, int aggressive)
 {
 	magv_t *p = &g->v.a[idd>>1], *q[2];
 	ku128_v *r;
@@ -195,9 +193,10 @@ int mag_vh_pop_simple(mag_t *g, uint64_t idd, float max_cov, float max_frac, int
 		dir[j] = x&1;
 		q[j] = &g->v.a[x>>1];
 		if (q[j]->nei[0].n != 1 || q[j]->nei[1].n != 1) return ret; // no bubble
-		l[j] = q[j]->len - (int)(q[j]->nei[0].a->y + q[j]->nei[1].a->y);
+		l[j] = q[j]->len - (int)(q[j]->nei[0].a->y + q[j]->nei[1].a->y); // bubble length, excluding overlaps
 	}
 	if (q[0]->nei[dir[0]^1].a->x != q[1]->nei[dir[1]^1].a->x) return ret; // no bubble
+	if (l[0] - l[1] > max_bdiff || l[1] - l[0] > max_bdiff) return 1; // huge bubble differences
 	for (j = 0; j < 2; ++j) { // set seq[] and cov[], and compute avg[]
 		if (l[j] > 0) {
 			seq[j] = malloc(l[j]<<1);
@@ -254,16 +253,16 @@ int mag_vh_pop_simple(mag_t *g, uint64_t idd, float max_cov, float max_frac, int
 	return ret;
 }
 
-void mag_g_pop_simple(mag_t *g, float max_cov, float max_frac, int min_merge_len, int aggressive)
+void mag_g_pop_simple(mag_t *g, float max_cov, float max_frac, int min_merge_len, int max_bdiff, int aggressive)
 {
 	int64_t i, n_examined = 0, n_popped = 0;
 	int ret;
 
 	for (i = 0; i < g->v.n; ++i) {
-		ret = mag_vh_pop_simple(g, i<<1|0, max_cov, max_frac, aggressive);
+		ret = mag_vh_pop_simple(g, i<<1|0, max_cov, max_frac, max_bdiff, aggressive);
 		if (ret >= 1) ++n_examined;
 		if (ret >= 2) ++n_popped;
-		ret = mag_vh_pop_simple(g, i<<1|1, max_cov, max_frac, aggressive);
+		ret = mag_vh_pop_simple(g, i<<1|1, max_cov, max_frac, max_bdiff, aggressive);
 		if (ret >= 1) ++n_examined;
 		if (ret >= 2) ++n_popped;
 	}
