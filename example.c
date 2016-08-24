@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "  -t INT          number of threads (don't use multi-threading for small data sets) [%d]\n", opt.n_threads);
 		fprintf(stderr, "  -d INT          retain a bubble if one side is longer than the other side by >INT-bp [%d]\n", opt.mag_opt.max_bdiff);
 		fprintf(stderr, "  -A              discard heterozygotes (apply this to assemble bacterial genomes; override -O)\n");
-		fprintf(stderr, "  -O              don't pop open bubbles\n");
+		fprintf(stderr, "  -O              don't apply aggressive tip trimming\n");
 		fprintf(stderr, "  -g              output the assembly graph in the GFA format\n");
 		return 1;
 	}
