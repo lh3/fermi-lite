@@ -50,7 +50,7 @@ void fml_opt_adjust(fml_opt_t *opt, int n_seqs, const bseq1_t *seqs)
 		if (1ULL<<log_len > tot_len) break;
 	if (opt->ec_k == 0) opt->ec_k = (log_len + 12) / 2;
 	if (opt->ec_k%2 == 0) ++opt->ec_k;
-	opt->mag_opt.min_elen = (int)((double)tot_len / n_seqs * 2.5 + .499);
+	if (opt->mag_opt.min_elen < 0) opt->mag_opt.min_elen = (int)((double)tot_len / n_seqs * 2.5 + .499);
 }
 
 static inline int is_rev_same(int l, const char *s)
