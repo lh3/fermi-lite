@@ -18,6 +18,11 @@ is able to retain heterozygous events and thus can be used to assemble diploid
 regions for the purpose of variant calling. It is one of the limited choices
 for local re-assembly and arguably the easiest to interface.
 
+If you use fermi-lite in your work, please cite the FermiKit paper:
+
+> Li H (2015) FermiKit: assembly-based variant calling for Illumina
+> resequencing data, *Bioinformatics*, **31**:3694-6.
+
 ## Usage
 
 For now, see [example.c][example] for the basic use of the library. Here is a
