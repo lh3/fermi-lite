@@ -7,23 +7,11 @@
 #include "kmer.h"
 #include "internal.h"
 #include "fml.h"
+#include "bfc.h"
 
 /*******************
  *** BFC options ***
  *******************/
-
-typedef struct {
-	int n_threads, q, k, l_pre;
-	int min_cov; // a k-mer is considered solid if the count is no less than this
-
-	int max_end_ext;
-	int win_multi_ec;
-	float min_trim_frac;
-
-	// these ec options cannot be changed on the command line
-	int w_ec, w_ec_high, w_absent, w_absent_high;
-	int max_path_diff, max_heap;
-} bfc_opt_t;
 
 void bfc_opt_init(bfc_opt_t *opt)
 {
@@ -45,26 +33,6 @@ void bfc_opt_init(bfc_opt_t *opt)
 	opt->max_path_diff = 15;
 	opt->max_heap = 100;
 }
-
-/**********************
- *** K-mer counting ***
- **********************/
-
-#define CNT_BUF_SIZE 256
-
-typedef struct { // cache to reduce locking
-	uint64_t y[2];
-	int is_high;
-} insbuf_t;
-
-typedef struct {
-	int k, q;
-	int n_seqs;
-	const fml_seq1_t *seqs;
-	bfc_ch_t *ch;
-	int *n_buf;
-	insbuf_t **buf;
-} cnt_step_t;
 
 bfc_kmer_t bfc_kmer_null = {{0,0,0,0}};
 
@@ -126,34 +94,6 @@ struct bfc_ch_s *fml_count(int n, const fml_seq1_t *seq, int k, int q, int l_pre
 	free(cs.buf); free(cs.n_buf);
 	return cs.ch;
 }
-
-/***************
- *** Correct ***
- ***************/
-
-#define BFC_MAX_KMER     63
-#define BFC_MAX_BF_SHIFT 37
-
-#define BFC_MAX_PATHS 4
-#define BFC_EC_HIST 5
-#define BFC_EC_HIST_HIGH 2
-
-#define BFC_EC_MIN_COV_COEF .1
-
-/**************************
- * Sequence struct for ec *
- **************************/
-
-#include "kvec.h"
-
-typedef struct { // NOTE: unaligned memory
-	uint8_t b:3, q:1, ob:3, oq:1;
-	uint8_t dummy;
-	uint16_t lcov:6, hcov:6, solid_end:1, high_end:1, ec:1, absent:1;
-	int i;
-} ecbase_t;
-
-typedef kvec_t(ecbase_t) ecseq_t;
 
 static int bfc_seq_conv(const char *s, const char *q, int qthres, ecseq_t *seq)
 {
@@ -263,53 +203,6 @@ uint64_t bfc_ec_best_island(int k, const ecseq_t *s)
 	if (l > max) max = l, max_i = i;
 	return max > 0? (uint64_t)(max_i - max - k + 1) << 32 | max_i : 0;
 }
-
-/********************
- * Correct one read *
- ********************/
-
-#include "ksort.h"
-
-#define ECCODE_MISC      1
-#define ECCODE_MANY_N    2
-#define ECCODE_NO_SOLID  3
-#define ECCODE_UNCORR_N  4
-#define ECCODE_MANY_FAIL 5
-
-typedef struct {
-	uint32_t ec_code:3, brute:1, n_ec:14, n_ec_high:14;
-	uint32_t n_absent:24, max_heap:8;
-} ecstat_t;
-
-typedef struct {
-	uint8_t ec:1, ec_high:1, absent:1, absent_high:1, b:4;
-} bfc_penalty_t;
-
-typedef struct {
-	int tot_pen;
-	int i; // base position
-	int k; // position in the stack
-	int32_t ecpos_high[BFC_EC_HIST_HIGH];
-	int32_t ecpos[BFC_EC_HIST];
-	bfc_kmer_t x;
-} echeap1_t;
-
-typedef struct {
-	int parent, i, tot_pen;
-	uint8_t b;
-	bfc_penalty_t pen;
-	uint16_t cnt;
-} ecstack1_t;
-
-typedef struct {
-	const bfc_opt_t *opt;
-	const bfc_ch_t *ch;
-	kvec_t(echeap1_t) heap;
-	kvec_t(ecstack1_t) stack;
-	ecseq_t seq, tmp, ec[2];
-	int mode;
-	ecstat_t ori_st;
-} bfc_ec1buf_t;
 
 #define heap_lt(a, b) ((a).tot_pen > (b).tot_pen)
 KSORT_INIT(ec, echeap1_t, heap_lt)
@@ -567,19 +460,6 @@ ecstat_t bfc_ec1(bfc_ec1buf_t *e, char *seq, char *qual)
 	return s;
 }
 
-/********************
- * Error correction *
- ********************/
-
-typedef struct {
-	const bfc_opt_t *opt;
-	const bfc_ch_t *ch;
-	bfc_ec1buf_t **e;
-	int64_t n_processed;
-	int n_seqs, flt_uniq;
-	fml_seq1_t *seqs;
-} ec_step_t;
-
 static uint64_t max_streak(int k, const bfc_ch_t *ch, const fml_seq1_t *s)
 {
 	int i, l;
@@ -661,6 +541,18 @@ float fml_correct_core(const fml_opt_t *opt, int flt_uniq, int n, fml_seq1_t *se
 	free(es.e);
 	bfc_ch_destroy(ch);
 	return kcov;
+}
+
+// Added by jwala for use in libSeqLib
+void kmer_correct(ec_step_t * es, int mode, bfc_ch_t * ch) {
+  int i = 0;
+  es->e = (bfc_ec1buf_t**)calloc(es->opt->n_threads, sizeof(void*)); //jwala added cast
+  for (i = 0; i < es->opt->n_threads; ++i)
+    es->e[i] = ec1buf_init(es->opt, ch), es->e[i]->mode = mode;
+  kt_for(es->opt->n_threads, worker_ec, es, es->n_seqs);
+  for (i = 0; i < es->opt->n_threads; ++i)
+    ec1buf_destroy(es->e[i]);
+  free(es->e);
 }
 
 float fml_correct(const fml_opt_t *opt, int n, fml_seq1_t *seq)
