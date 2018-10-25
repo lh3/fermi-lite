@@ -8,7 +8,7 @@
 typedef struct {
 	int32_t l_seq;
 	char *seq, *qual; // NULL-terminated strings; length expected to match $l_seq
-} bseq1_t;
+} fml_seq1_t;
 
 #define MAG_F_AGGRESSIVE 0x20 // pop variant bubbles (not default)
 #define MAG_F_POPOPEN    0x40 // aggressive tip trimming (default)
@@ -63,7 +63,7 @@ extern "C" {
  *
  * @return array of sequences
  */
-bseq1_t *bseq_read(const char *fn, int *n);
+fml_seq1_t *fml_seq_read(const char *fn, int *n);
 
 /**
  * Initialize default parameters
@@ -82,7 +82,7 @@ void fml_opt_init(fml_opt_t *opt);
  *
  * @return array of unitigs
  */
-fml_utg_t *fml_assemble(const fml_opt_t *opt, int n_seqs, bseq1_t *seqs, int *n_utg);
+fml_utg_t *fml_assemble(const fml_opt_t *opt, int n_seqs, fml_seq1_t *seqs, int *n_utg);
 
 /**
  * Free unitigs
@@ -103,7 +103,7 @@ void fml_utg_destroy(int n_utg, fml_utg_t *utg);
  * @param n_seqs    number of sequences
  * @param seqs      array of sequences
  */
-void fml_opt_adjust(fml_opt_t *opt, int n_seqs, const bseq1_t *seqs);
+void fml_opt_adjust(fml_opt_t *opt, int n_seqs, const fml_seq1_t *seqs);
 
 /**
  * Error correction
@@ -114,8 +114,8 @@ void fml_opt_adjust(fml_opt_t *opt, int n_seqs, const bseq1_t *seqs);
  *
  * @return k-mer coverage
  */
-float fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq);
-float fml_fltuniq(const fml_opt_t *opt, int n, bseq1_t *seq);
+float fml_correct(const fml_opt_t *opt, int n, fml_seq1_t *seq);
+float fml_fltuniq(const fml_opt_t *opt, int n, fml_seq1_t *seq);
 
 /**
  * Construct FMD-index
@@ -126,7 +126,7 @@ float fml_fltuniq(const fml_opt_t *opt, int n, bseq1_t *seq);
  *
  * @return FMD-index
  */
-struct rld_t *fml_seq2fmi(const fml_opt_t *opt, int n, bseq1_t *seq);
+struct rld_t *fml_seq2fmi(const fml_opt_t *opt, int n, fml_seq1_t *seq);
 
 /**
  * Generate initial overlap graph

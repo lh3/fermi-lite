@@ -60,7 +60,7 @@ typedef struct { // cache to reduce locking
 typedef struct {
 	int k, q;
 	int n_seqs;
-	const bseq1_t *seqs;
+	const fml_seq1_t *seqs;
 	bfc_ch_t *ch;
 	int *n_buf;
 	insbuf_t **buf;
@@ -97,7 +97,7 @@ static void bfc_kmer_insert(cnt_step_t *cs, const bfc_kmer_t *x, int is_high, in
 static void worker_count(void *_data, long k, int tid)
 {
 	cnt_step_t *cs = (cnt_step_t*)_data;
-	const bseq1_t *s = &cs->seqs[k];
+	const fml_seq1_t *s = &cs->seqs[k];
 	int i, l;
 	bfc_kmer_t x = bfc_kmer_null;
 	uint64_t qmer = 0, mask = (1ULL<<cs->k) - 1;
@@ -111,7 +111,7 @@ static void worker_count(void *_data, long k, int tid)
 	}
 }
 
-struct bfc_ch_s *fml_count(int n, const bseq1_t *seq, int k, int q, int l_pre, int n_threads)
+struct bfc_ch_s *fml_count(int n, const fml_seq1_t *seq, int k, int q, int l_pre, int n_threads)
 {
 	int i;
 	cnt_step_t cs;
@@ -577,10 +577,10 @@ typedef struct {
 	bfc_ec1buf_t **e;
 	int64_t n_processed;
 	int n_seqs, flt_uniq;
-	bseq1_t *seqs;
+	fml_seq1_t *seqs;
 } ec_step_t;
 
-static uint64_t max_streak(int k, const bfc_ch_t *ch, const bseq1_t *s)
+static uint64_t max_streak(int k, const bfc_ch_t *ch, const fml_seq1_t *s)
 {
 	int i, l;
 	uint64_t max = 0, t = 0;
@@ -602,7 +602,7 @@ static uint64_t max_streak(int k, const bfc_ch_t *ch, const bseq1_t *s)
 static void worker_ec(void *_data, long k, int tid)
 {
 	ec_step_t *es = (ec_step_t*)_data;
-	bseq1_t *s = &es->seqs[k];
+	fml_seq1_t *s = &es->seqs[k];
 	if (es->flt_uniq) {
 		uint64_t max;
 		max = max_streak(es->opt->k, es->ch, s);
@@ -624,7 +624,7 @@ static void worker_ec(void *_data, long k, int tid)
 	} else bfc_ec1(es->e[tid], s->seq, s->qual);
 }
 
-float fml_correct_core(const fml_opt_t *opt, int flt_uniq, int n, bseq1_t *seq)
+float fml_correct_core(const fml_opt_t *opt, int flt_uniq, int n, fml_seq1_t *seq)
 {
 	bfc_ch_t *ch;
 	int i, mode;
@@ -663,12 +663,12 @@ float fml_correct_core(const fml_opt_t *opt, int flt_uniq, int n, bseq1_t *seq)
 	return kcov;
 }
 
-float fml_correct(const fml_opt_t *opt, int n, bseq1_t *seq)
+float fml_correct(const fml_opt_t *opt, int n, fml_seq1_t *seq)
 {
 	return fml_correct_core(opt, 0, n, seq);
 }
 
-float fml_fltuniq(const fml_opt_t *opt, int n, bseq1_t *seq)
+float fml_fltuniq(const fml_opt_t *opt, int n, fml_seq1_t *seq)
 {
 	return fml_correct_core(opt, 1, n, seq);
 }
