@@ -1,7 +1,7 @@
 #ifndef FML_H
 #define FML_H
 
-#define FML_VERSION "r53"
+#define FML_VERSION "r55"
 
 #include <stdint.h>
 
@@ -124,7 +124,7 @@ float fml_fltuniq(const fml_opt_t *opt, int n, bseq1_t *seq);
  * @param n         number of sequences
  * @param seq       array of sequences; FREED on return
  *
- * @return FMD-index
+ * @return FMD-index on success; NULL if all input sequences are zero in length
  */
 struct rld_t *fml_seq2fmi(const fml_opt_t *opt, int n, bseq1_t *seq);
 

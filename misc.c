@@ -72,6 +72,11 @@ struct rld_t *fml_fmi_gen(int n, bseq1_t *seq, int is_mt)
 	rld_t *e = 0;
 	int k;
 
+	for (k = 0; k < n; ++k)
+		if (seq[k].l_seq > 0)
+			break;
+	if (k == n) return 0;
+
 	mr = mr_init(ROPE_DEF_MAX_NODES, ROPE_DEF_BLOCK_LEN, MR_SO_RCLO);
 	for (k = 0; k < n; ++k) {
 		int i;
@@ -280,10 +285,12 @@ fml_utg_t *fml_assemble(const fml_opt_t *opt0, int n_seqs, bseq1_t *seqs, int *n
 	fml_opt_t opt = *opt0;
 	float kcov;
 
+	*n_utg = 0;
 	fml_opt_adjust(&opt, n_seqs, seqs);
 	if (opt.ec_k >= 0) fml_correct(&opt, n_seqs, seqs);
 	kcov = fml_fltuniq(&opt, n_seqs, seqs);
 	e = fml_seq2fmi(&opt, n_seqs, seqs);
+	if (e == 0) return 0; // this may happen when all sequences are filtered out
 	g = fml_fmi2mag(&opt, e);
 	opt.mag_opt.min_ensr = opt.mag_opt.min_ensr > kcov * MAG_MIN_NSR_COEF? opt.mag_opt.min_ensr : (int)(kcov * MAG_MIN_NSR_COEF + .499);
 	opt.mag_opt.min_ensr = opt.mag_opt.min_ensr < opt0->max_cnt? opt.mag_opt.min_ensr : opt0->max_cnt;
