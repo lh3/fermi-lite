@@ -40,7 +40,7 @@ void fml_opt_init(fml_opt_t *opt)
 	opt->mag_opt.flag = MAG_F_NO_SIMPL | MAG_F_POPOPEN;
 }
 
-void fml_opt_adjust(fml_opt_t *opt, int n_seqs, const bseq1_t *seqs)
+void fml_opt_adjust(fml_opt_t *opt, int n_seqs, const fml_seq1_t *seqs)
 {
 	int i, log_len;
 	uint64_t tot_len = 0;
@@ -62,7 +62,7 @@ static inline int is_rev_same(int l, const char *s)
 	return (i == l>>1);
 }
 
-struct rld_t *fml_fmi_gen(int n, bseq1_t *seq, int is_mt)
+struct rld_t *fml_fmi_gen(int n, fml_seq1_t *seq, int is_mt)
 {
 	mrope_t *mr;
 	kstring_t str = {0,0,0};
@@ -80,7 +80,7 @@ struct rld_t *fml_fmi_gen(int n, bseq1_t *seq, int is_mt)
 	mr = mr_init(ROPE_DEF_MAX_NODES, ROPE_DEF_BLOCK_LEN, MR_SO_RCLO);
 	for (k = 0; k < n; ++k) {
 		int i;
-		bseq1_t *s = &seq[k];
+		fml_seq1_t *s = &seq[k];
 		if (s->l_seq == 0) continue;
 		free(s->qual);
 		for (i = 0; i < s->l_seq; ++i)
@@ -121,7 +121,7 @@ struct rld_t *fml_fmi_gen(int n, bseq1_t *seq, int is_mt)
 	return e;
 }
 
-struct rld_t *fml_seq2fmi(const fml_opt_t *opt, int n, bseq1_t *seq)
+struct rld_t *fml_seq2fmi(const fml_opt_t *opt, int n, fml_seq1_t *seq)
 {
 	return fml_fmi_gen(n, seq, opt->n_threads > 1? 1 : 0);
 }
@@ -277,7 +277,7 @@ void fml_utg_destroy(int n, fml_utg_t *utg)
 
 #define MAG_MIN_NSR_COEF .1
 
-fml_utg_t *fml_assemble(const fml_opt_t *opt0, int n_seqs, bseq1_t *seqs, int *n_utg)
+fml_utg_t *fml_assemble(const fml_opt_t *opt0, int n_seqs, fml_seq1_t *seqs, int *n_utg)
 {
 	rld_t *e;
 	mag_t *g;

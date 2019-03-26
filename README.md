@@ -34,11 +34,11 @@ sketch of the example:
 int main(int argc, char *argv[])
 {
 	int i, n_seqs, n_utgs;
-	bseq1_t *seqs;                      // array of input sequences
+	fml_seq1_t *seqs;                   // array of input sequences
 	fml_utg_t *utgs;                    // array of output unitigs
 	fml_opt_t opt;
 	if (argc == 1) return 1;            // do nothing if there is no input file
-	seqs = bseq_read(argv[1], &n_seqs); // or fill the array with callers' functions
+	seqs = fml_seq_read(argv[1], &n_seqs); // or fill the array with callers' functions
 	fml_opt_init(&opt);                 // initialize parameters
 	utgs = fml_assemble(&opt, n_seqs, seqs, &n_utgs); // assemble!
 	for (i = 0; i < n_utgs; ++i)        // output in fasta
