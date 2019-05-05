@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 	fml_utg_t *utg;
 
 	fml_opt_init(&opt);
-	while ((c = getopt(argc, argv, "gOAe:l:r:t:c:d:v:")) >= 0) {
+	while ((c = getopt(argc, argv, "gOAe:l:r:t:c:d:v:E:")) >= 0) {
 		if (c == 'e') opt.ec_k = atoi(optarg);
 		else if (c == 'l') opt.min_asm_ovlp = atoi(optarg);
 		else if (c == 'r') opt.mag_opt.min_dratio1 = atof(optarg);
@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
 			opt.min_cnt = strtol(optarg, &p, 10);
 			if (*p == ',') opt.max_cnt = strtol(p + 1, &p, 10);
 		}
+		else if (c == 'E') opt.mag_opt.min_elen = atoi(optarg);
 	}
 	if (argc == optind) {
 		fprintf(stderr, "Usage: fml-asm [options] <in.fq>\n");
@@ -39,6 +40,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "  -A              discard heterozygotes (apply this to assemble bacterial genomes; override -O)\n");
 		fprintf(stderr, "  -O              don't apply aggressive tip trimming\n");
 		fprintf(stderr, "  -g              output the assembly graph in the GFA format\n");
+		fprintf(stderr, "  -E INT          minimum 'elen' - FIXME\n");
 		return 1;
 	}
 	seqs = bseq_read(argv[optind], &n_seqs);
