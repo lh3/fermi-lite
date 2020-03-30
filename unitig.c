@@ -71,7 +71,7 @@ static inline void set_bit(uint64_t *bits, uint64_t x)
 {
 	uint64_t *p = bits + (x>>6);
 	uint64_t z = 1LLU<<(x&0x3f);
-	__sync_fetch_and_or(p, z);
+	__atomic_fetch_or(p, z, __ATOMIC_SEQ_CST);
 }
 
 static inline void set_bits(uint64_t *bits, const rldintv_t *p)
@@ -389,7 +389,7 @@ static void worker(void *data, long _i, int tid)
 		magv_t *q;
 		p[0] = w->visited + (d->z.k[0]>>6); x[0] = 1LLU<<(d->z.k[0]&0x3f);
 		p[1] = w->visited + (d->z.k[1]>>6); x[1] = 1LLU<<(d->z.k[1]&0x3f);
-		if ((__sync_fetch_and_or(p[0], x[0])&x[0]) || (__sync_fetch_and_or(p[1], x[1])&x[1])) return;
+		if ((__atomic_fetch_or(p[0], x[0], __ATOMIC_SEQ_CST)&x[0]) || (__atomic_fetch_or(p[1], x[1], __ATOMIC_SEQ_CST)&x[1])) return;
 		d->z.len = d->str.l;
 		if (d->max_l < d->str.m) {
 			d->max_l = d->str.m;
