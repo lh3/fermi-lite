@@ -25,7 +25,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include <emmintrin.h>
+#define SIMDE_ENABLE_NATIVE_ALIASES
+#include <simde/x86/sse2.h>
 #include "ksw.h"
 
 #ifdef __GNUC__
