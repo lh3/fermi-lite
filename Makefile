@@ -1,7 +1,7 @@
 CC=			gcc
 CFLAGS=		-g -Wall -O2 -Wno-unused-function #-fno-inline-functions -fno-inline-functions-called-once
 CPPFLAGS=
-INCLUDES=	
+INCLUDES=	-I.
 OBJS=		kthread.o misc.o \
 			bseq.o htab.o bfc.o \
 			rle.o rope.o mrope.o rld0.o \
