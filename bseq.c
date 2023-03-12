@@ -6,10 +6,10 @@
 #include "kseq.h"
 KSEQ_INIT(gzFile, gzread)
 
-bseq1_t *bseq_read(const char *fn, int *n_)
+fml_seq1_t *fml_seq_read(const char *fn, int *n_)
 {
 	gzFile fp;
-	bseq1_t *seqs;
+	fml_seq1_t *seqs;
 	kseq_t *ks;
 	int m, n;
 	uint64_t size = 0;
@@ -21,10 +21,10 @@ bseq1_t *bseq_read(const char *fn, int *n_)
 
 	m = n = 0; seqs = 0;
 	while (kseq_read(ks) >= 0) {
-		bseq1_t *s;
+		fml_seq1_t *s;
 		if (n >= m) {
 			m = m? m<<1 : 256;
-			seqs = realloc(seqs, m * sizeof(bseq1_t));
+			seqs = realloc(seqs, m * sizeof(fml_seq1_t));
 		}
 		s = &seqs[n];
 		s->seq = strdup(ks->seq.s);
