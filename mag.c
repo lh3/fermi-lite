@@ -542,7 +542,7 @@ void mag_init_opt(magopt_t *o)
 	o->trim_len = 0;
 	o->trim_depth = 6;
 
-	o->min_elen = 300;
+	o->min_elen = -1;
 	o->min_ovlp = 0;
 	o->min_merge_len = 0;
 	o->min_ensr = 4;
